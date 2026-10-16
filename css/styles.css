@@ -420,3 +420,29 @@ body.gated { overflow: hidden; }
 .price-tag { display: grid; gap: 2px; }
 .price-tag b { font: 800 40px/1 var(--f-display); background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .price-tag span { color: var(--muted); font-size: 13px; }
+
+/* ---------- Academia: módulos desplegables y visor de lecciones ---------- */
+.mod-toggle { all: unset; display: grid; gap: 10px; cursor: pointer; border-radius: 10px; }
+.mod-toggle:focus-visible { outline: 2px solid var(--brass); outline-offset: 6px; }
+.mod-toggle .card-head { display: flex; justify-content: space-between; align-items: center; }
+.mod-desc { color: var(--muted); font-size: 14px; }
+.mod-toggle .progress { display: block; }
+.mod .chev { color: var(--brass); margin-left: 4px; }
+.mod:not(.open):hover { border-color: rgba(0, 240, 255, .45); }
+.lessons .go { margin-left: auto; font: 600 11px var(--f-data); letter-spacing: .08em; color: var(--brass); opacity: 0; transition: opacity .15s; }
+.lessons button:hover .go, .lessons button:focus-visible .go { opacity: 1; }
+.lessons button:disabled { cursor: wait; opacity: .6; }
+.reader.viewer { position: fixed; z-index: 90; top: 4vh; bottom: 4vh; left: max(16px, calc(50% - 440px)); right: max(16px, calc(50% - 440px)); overflow-y: auto; align-content: start; gap: 18px; padding: 28px; background: rgba(10, 13, 24, .97); box-shadow: 0 0 0 100vmax rgba(3, 4, 9, .78), 0 0 60px rgba(0, 240, 255, .18); }
+.reader.viewer .lead { font-size: 16px; line-height: 1.65; }
+.reader.viewer .card-head { position: sticky; top: -28px; margin: -28px -28px 0; padding: 16px 28px; background: rgba(10, 13, 24, .97); border-bottom: 1px solid rgba(120, 160, 255, .14); z-index: 1; }
+.steps-box, .example { border-radius: 12px; padding: 14px 16px; display: grid; gap: 8px; }
+.steps-box { background: rgba(0, 240, 255, .06); border: 1px solid rgba(0, 240, 255, .22); }
+.steps-box ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.example { background: rgba(139, 92, 255, .08); border: 1px solid rgba(139, 92, 255, .3); }
+.example p { margin: 0; }
+.video { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; border: 1px solid rgba(120, 160, 255, .2); }
+.video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.viewer-nav { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; }
+.viewer-nav .btn:disabled { opacity: .35; cursor: default; }
+body.viewer-open { overflow: hidden; }
+@media (max-width: 600px) { .reader.viewer { top: 0; bottom: 0; left: 0; right: 0; border-radius: 0; padding: 20px 16px; } .reader.viewer .card-head { top: -20px; margin: -20px -16px 0; padding: 14px 16px; } }

@@ -419,38 +419,69 @@
       if (r.ok) { lessons = (await r.json()).modules; renderAcademy(); }
     } catch {}
   }
+  const expanded = new Set([0]); // módulos desplegados
+  const lessonId = (mi, li) => mi + "-" + li;
+  function step(dir) { // lección anterior (-1) o siguiente (+1)
+    let [mi, li] = open.split("-").map(Number); li += dir;
+    if (li < 0) { mi--; if (mi < 0) return null; li = MODS[mi][2].length - 1; }
+    if (li >= MODS[mi][2].length) { mi++; li = 0; if (mi >= MODS.length) return null; }
+    return lessonId(mi, li);
+  }
   function renderAcademy() {
     const exclusive = !!access().course && !!lessons;
     if (access().course && !lessons) loadLessons();
     $("aLock").hidden = !!access().course;
-    $("aModules").classList.toggle("locked", !exclusive);
-    $("aModules").setAttribute("aria-hidden", String(!exclusive));
+    $("aModules").classList.toggle("locked", !access().course);
+    $("aModules").setAttribute("aria-hidden", String(!access().course));
     if (!exclusive) open = null;
     const total = MODS.reduce((a, m) => a + m[2].length, 0), pct = Math.round(done.size / total * 100);
     $("aTotal").textContent = pct + "%"; $("aTotalBar").style.width = pct + "%";
     $("aModules").innerHTML = MODS.map(([t, d, ls], mi) => {
-      const n = ls.filter((_, li) => done.has(mi + "-" + li)).length, p = Math.round(n / ls.length * 100);
-      return `<div class="card mod"><div class="card-head"><span class="mod-num">MÓDULO ${pad(mi + 1)}</span><span class="label">${n}/${ls.length} lecciones</span></div>
-        <h3>${t}</h3><p style="margin:0;color:var(--muted);font-size:14px">${d}</p>
-        <div class="progress"><i style="width:${p}%"></i></div>
-        <ul class="lessons">${ls.map((l, li) => `<li class="${done.has(mi + "-" + li) ? "done" : ""}"><button data-lesson="${mi}-${li}"><span class="ck">${done.has(mi + "-" + li) ? "✓" : ""}</span>${l[0]}</button></li>`).join("")}</ul></div>`;
+      const n = ls.filter((_, li) => done.has(lessonId(mi, li))).length, p = Math.round(n / ls.length * 100), isOpen = expanded.has(mi);
+      return `<div class="card mod ${isOpen ? "open" : ""}">
+        <button class="mod-toggle" data-mod="${mi}" aria-expanded="${isOpen}">
+          <span class="card-head"><span class="mod-num">MÓDULO ${pad(mi + 1)}</span><span class="label">${n}/${ls.length} lecciones <span class="chev">${isOpen ? "▴" : "▾"}</span></span></span>
+          <h3>${t}</h3><span class="mod-desc">${d}</span>
+          <span class="progress"><i style="width:${p}%"></i></span>
+        </button>
+        ${isOpen ? `<ul class="lessons">${ls.map((l, li) => `<li class="${done.has(lessonId(mi, li)) ? "done" : ""}"><button data-lesson="${lessonId(mi, li)}" ${exclusive ? "" : "disabled"}><span class="ck">${done.has(lessonId(mi, li)) ? "✓" : ""}</span>${l[0]}<span class="go">${exclusive ? "Abrir →" : "Cargando…"}</span></button></li>`).join("")}</ul>` : ""}
+      </div>`;
     }).join("");
     const r = $("aReader");
+    r.classList.add("viewer");
+    document.body.classList.toggle("viewer-open", !!open);
     if (!open) { r.hidden = true; return; }
-    const [mi, li] = open.split("-").map(Number), l = lessons[mi].lessons[li], isDone = done.has(open), last = li === MODS[mi][2].length - 1 && mi === MODS.length - 1;
+    const [mi, li] = open.split("-").map(Number), l = lessons[mi].lessons[li], isDone = done.has(open), prev = step(-1), next = step(1);
     r.hidden = false;
-    r.innerHTML = `<div class="card-head"><span class="mod-num">MÓDULO ${pad(mi + 1)} · LECCIÓN ${li + 1} DE ${MODS[mi][2].length}</span><button class="icon-btn" data-act="close">Cerrar</button></div>
-      <h3>${esc(l.title)}</h3><p>${esc(l.body)}</p><div class="tip"><span class="label" style="color:var(--brass)">Clave</span><br>${esc(l.key)}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:10px"><button class="btn ${isDone ? "" : "primary"}" data-act="toggle">${isDone ? "Completada ✓" : "Marcar como completada"}</button>${last ? "" : '<button class="btn" data-act="next">Siguiente lección →</button>'}</div>`;
+    r.innerHTML = `<div class="card-head"><span class="mod-num">MÓDULO ${pad(mi + 1)} · ${esc(MODS[mi][0])} · LECCIÓN ${li + 1} DE ${MODS[mi][2].length}</span><button class="icon-btn" data-act="close" aria-label="Cerrar la lección">Cerrar ✕</button></div>
+      <h3>${esc(l.title)}</h3>
+      ${l.video ? `<div class="video"><iframe src="${esc(l.video)}" title="${esc(l.title)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>` : ""}
+      <p class="lead">${esc(l.body)}</p>
+      ${l.steps?.length ? `<div class="steps-box"><span class="label">Cómo aplicarlo</span><ol>${l.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></div>` : ""}
+      ${l.example ? `<div class="example"><span class="label">Ejemplo práctico</span><p>${esc(l.example)}</p></div>` : ""}
+      <div class="tip"><span class="label" style="color:var(--brass)">Clave</span><br>${esc(l.key)}</div>
+      <div class="viewer-nav">
+        <button class="btn" data-act="prev" ${prev ? "" : "disabled"}>← Anterior</button>
+        <button class="btn ${isDone ? "" : "primary"}" data-act="toggle">${isDone ? "Completada ✓" : "Marcar como completada"}</button>
+        <button class="btn" data-act="next" ${next ? "" : "disabled"}>Siguiente →</button>
+      </div>`;
+    r.scrollTop = 0;
   }
-  $("aModules").addEventListener("click", e => { const b = e.target.closest("[data-lesson]"); if (!b) return; open = b.dataset.lesson; renderAcademy(); $("aReader").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  $("aModules").addEventListener("click", e => {
+    const m = e.target.closest("[data-mod]");
+    if (m) { const i = +m.dataset.mod; expanded.has(i) ? expanded.delete(i) : expanded.add(i); return renderAcademy(); }
+    const b = e.target.closest("[data-lesson]"); if (!b || !lessons) return;
+    open = b.dataset.lesson; renderAcademy();
+  });
   $("aReader").addEventListener("click", e => {
     const a = e.target.closest("[data-act]")?.dataset.act; if (!a) return;
     if (a === "close") open = null;
     if (a === "toggle") { done.has(open) ? done.delete(open) : done.add(open); store.set("kairos-academy", [...done]); }
-    if (a === "next") { let [mi, li] = open.split("-").map(Number); done.add(open); store.set("kairos-academy", [...done]); li++; if (li >= MODS[mi][2].length) { mi++; li = 0; } open = mi + "-" + li; }
+    if (a === "prev") open = step(-1) || open;
+    if (a === "next") { done.add(open); store.set("kairos-academy", [...done]); const n = step(1); if (n) { open = n; expanded.add(+n.split("-")[0]); } }
     renderAcademy();
   });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && open) { open = null; renderAcademy(); } });
 
   /* ---------- Registro de vistas y temporizador ---------- */
   window.KairosViews = { cal: renderCal, heat: renderHeat, macro: () => { showMacro(); loadLiveMacro(); }, journal: renderJournal, academy: renderAcademy };
