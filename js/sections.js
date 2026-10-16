@@ -407,7 +407,7 @@
 
   /* ---------- ACADEMIA ---------- */
   // Temario público del curso (títulos). El texto de cada lección lo entrega /api/academia solo a quien ha comprado el curso.
-  const MODS = [["La Sala de Mando","Cómo leer cada módulo del panel y en qué orden mirarlo.",[["Qué es la Sala de Mando"],["El sesgo y la confianza"],["Precios y flujo"],["Cómo leer el briefing"],["El calendario económico"],["Sesiones y apertura de NY"]]],["Oferta y demanda","Zonas donde el precio reaccionó con fuerza y por qué tienden a repetirse.",[["Qué es una zona"],["Cómo identificar una zona válida"],["Zonas en MNQ, MES y oro"],["Fuerza y confluencias"],["Entradas desde zonas"],["Zonas y sesgo"]]],["Orderflow","Ver quién está agrediendo el mercado en cada momento.",[["Qué es el orderflow"],["El delta"],["Barras de compra y venta"],["Volumen por precio y absorción"],["Divergencias de delta"],["Orderflow en el briefing"]]],["Ejecución","Del análisis a la orden: rutina, entradas y gestión del riesgo.",[["Preparación antes del mercado"],["La apertura de Nueva York"],["El modelo de entrada"],["Gestión del riesgo"],["Gestión de la operación"],["La rutina diaria completa"]]]];
+  const MODS = [["La Sala de Mando","Cómo leer cada módulo del panel y en qué orden mirarlo.",[["Qué es la Sala de Mando"],["El sesgo y la confianza"],["Precios y flujo"],["Cómo leer el briefing"],["El calendario económico"],["Sesiones y apertura de NY"]]],["Oferta y demanda","Zonas donde el precio reaccionó con fuerza y por qué tienden a repetirse.",[["Qué es una zona"],["Cómo identificar una zona válida"],["Zonas en MNQ, MES y oro"],["Fuerza y confluencias"],["Entradas desde zonas"],["Zonas y sesgo"]]],["Orderflow","Ver quién está agrediendo el mercado en cada momento.",[["Qué es el orderflow"],["El delta"],["Barras de compra y venta"],["Volumen por precio y absorción"],["Divergencias de delta"],["Orderflow en el briefing"]]],["Ejecución","Del análisis a la orden: rutina, entradas y gestión del riesgo.",[["Preparación antes del mercado"],["La apertura de Nueva York"],["El modelo de entrada"],["Gestión del riesgo"],["Gestión de la operación"],["La rutina diaria completa"]]],["La Estrategia Secreta MNQ","Apertura de Nueva York con orderflow: desequilibrio, liquidez, imbalances y delta.",[["La estrategia"],["Visión general: los 8 filtros"],["Condiciones de entrada"],["VAL, VAH y el nivel máximo"],["Ejecución y gestión"],["La lista de verificación"],["Palabras finales"]]]];
   const done = new Set(store.get("kairos-academy", []));
   let open = null;
   let lessons = null; // texto completo de las lecciones, solo si el usuario ha comprado el curso
@@ -458,7 +458,8 @@
       <h3>${esc(l.title)}</h3>
       ${l.fig ? `<figure class="fig">${l.fig.svg}<figcaption>${esc(l.fig.caption)}</figcaption></figure>` : ""}
       ${l.video ? `<div class="video"><iframe src="${esc(l.video)}" title="${esc(l.title)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>` : ""}
-      <p class="lead">${esc(l.body)}</p>
+      ${l.body.split("\n\n").map(p => `<p class="lead">${esc(p).replace(/\n/g, "<br>")}</p>`).join("")}
+      ${(l.shots || []).map(sh => `<figure class="fig shot"><img src="${sh.src}" alt="${esc(sh.caption)}" loading="lazy"><figcaption>${esc(sh.caption)}</figcaption></figure>`).join("")}
       ${l.steps?.length ? `<div class="steps-box"><span class="label">Cómo aplicarlo</span><ol>${l.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></div>` : ""}
       ${l.example ? `<div class="example"><span class="label">Ejemplo práctico</span><p>${esc(l.example)}</p></div>` : ""}
       <div class="tip"><span class="label" style="color:var(--brass)">Clave</span><br>${esc(l.key)}</div>

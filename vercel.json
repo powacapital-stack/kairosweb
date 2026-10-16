@@ -1,5 +1,10 @@
 {
   "functions": {
-    "api/macro.js": { "maxDuration": 120 }
+    "api/macro.js": {
+      "maxDuration": 120
+    },
+    "api/academia.js": {
+      "includeFiles": "api/_lib/academia-img/**"
+    }
   }
 }

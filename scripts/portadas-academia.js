@@ -29,8 +29,17 @@ const arts = [
     return s + line(300, 110, 620, 110, C.mu, { op: .5 }); })(),
   (() => { const ch = candles([50, 48, 46, 47, 50, 53, 54, 52.5, 55, 58, 61], area);
     return ch.svg + level(ch, 46.5, C.cy, "ENTRADA", { x1: 300, x2: 620 }) + level(ch, 43.8, C.dn, "STOP", { x1: 300, x2: 620 }) + level(ch, 60.5, C.up, "OBJETIVO", { x1: 300, x2: 620 }); })(),
+  (() => { // Estrategia MNQ: zona, columnas de huella y delta
+    let s = rect(300, 30, 320, 60, C.vi, { op: .22, stroke: C.vi, rx: 4 });
+    [[330, 40, 150, C.up], [380, 20, 120, C.dn], [430, 50, 170, C.up], [480, 30, 160, C.dn], [530, 70, 190, C.dn]].forEach(([x, y0, y1, col], i) => {
+      s += line(x, y0, x, y1, col, { w: 3 });
+      for (let y = y0 + 6; y < y1; y += 9) s += rect(x + 6, y, 10 + ((y * 7 + i * 13) % 22), 6, C.fl, { op: .5, rx: 1 });
+    });
+    s += rect(330, 186, 70, 14, C.dn, { op: .9, rx: 3 }) + rect(404, 186, 60, 14, C.up, { op: .6, rx: 3 }) + rect(468, 186, 76, 14, C.dn, { op: .9, rx: 3 });
+    s += text(612, 198, "−3.150", { size: 12, fill: C.dn, anchor: "end", weight: 700, mono: true });
+    return s; })(),
 ];
-const names = ["La Sala de Mando", "Oferta y demanda", "Orderflow", "Ejecución"];
+const names = ["La Sala de Mando", "Oferta y demanda", "Orderflow", "Ejecución", "Estrategia Secreta MNQ"];
 const out = path.join(__dirname, "..", "img", "academia");
 names.forEach((n, i) => fs.writeFileSync(path.join(out, `modulo-${i + 1}.svg`), frame(String(i + 1).padStart(2, "0"), n, arts[i])));
 console.log("Portadas creadas en", out);
