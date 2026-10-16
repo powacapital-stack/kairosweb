@@ -4,8 +4,8 @@ window.KAIROS = {
   brand: "KAIROS",
   price: { amount: 77, currency: "€", period: "mes" },
 
-  // Invitación al servidor de Discord. Usa una invitación que no caduque.
-  discord: "https://discord.gg/bkaZmYUkS",
+  // Invitación al servidor de Discord (no caduca).
+  discord: "https://discord.gg/TAtJn24562",
 
   // Fuente de los precios que muestran los widgets de TradingView:
   //  - "cfd":     CFD de OANDA y spot de cripto. En los widgets gratuitos suelen ir en tiempo real.
