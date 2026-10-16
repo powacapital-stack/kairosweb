@@ -1,51 +1,66 @@
 # Kairos — web
 
-Web estática (HTML, CSS y JavaScript sin compilación) con:
+Web de Kairos publicada en Vercel: https://kairos-web-steel.vercel.app
 
-- `index.html` — landing pública: cinta de cotizaciones, gráfico del Nasdaq, herramientas, alta, precio (77 €/mes) y preguntas frecuentes.
-- `app.html` — área de miembros: Sala de Mando, Calendario, Mapa de calor, Macro (global y por activo), Diario y Academia (bloqueada para clientes exclusivos).
+- `index.html` — página pública (diseño futurista con animaciones 3D, GSAP).
+- `app.html` — área de miembros: Sala de Mando, Calendario, Mapa de calor, Macro, Diario y Academia.
+- `api/macro.js` — función de Vercel que genera la inteligencia macro con datos reales de FRED.
+
+## Estructura
+
+| Ruta | Qué es |
+|---|---|
+| `css/landing.css`, `js/landing.js` | Estilos y animaciones de la página pública |
+| `css/styles.css`, `js/app.js`, `js/sections.js` | Área de miembros |
+| `js/config.js` | Precio, enlace de pago de Whop, invitación de Discord y símbolos de TradingView |
+| `js/tv.js` | Inserción de los widgets de TradingView |
+| `api/macro.js` | `GET /api/macro`: datos macro reales (caché de 6 h) |
+| `api/_lib/macro-core.js` | Descarga de FRED y cálculo de motores, régimen y correlaciones |
+| `api/_lib/macro-rules.js` | Análisis por reglas (sin IA) |
+| `brand/` | Icono de la marca (SVG y PNG para Discord) |
+| `server.js` | Servidor local de pruebas (no se publica) |
 
 ## Qué es real y qué es de ejemplo
 
-| Parte | Origen de los datos |
+| Parte | Origen |
 |---|---|
-| Cinta de cotizaciones, gráfico de la portada, tarjetas de precio y gráfico de la Sala de Mando | **En vivo** · widgets gratuitos de TradingView |
-| Calendario económico | **En vivo** · widget de TradingView |
-| Mapa de calor (S&P 500, Nasdaq 100, cripto) | **En vivo** · widgets de TradingView |
-| Indicadores de la pestaña Macro (DXY, bono 10 años, VIX, oro, crudo) | **En vivo** · widgets de TradingView |
-| Sesgo, confianza, orderflow, delta, niveles clave, perfil de volumen y briefing | **Ejemplo simulado**: necesita un proveedor de orderflow |
-| Régimen macro, motores, alineación, divergencias y resúmenes IA | **Ejemplo**: se puede alimentar después con datos y un modelo de IA |
-| Diario de trading, alertas y progreso de la Academia | Se guardan en el navegador de cada usuario (`localStorage`) |
+| Precios, gráficos, calendario económico, mapa de calor | En vivo · widgets de TradingView |
+| Macro: régimen, convicción, motores, sesgo por activo, tipos Fed/BCE, correlaciones | Real · FRED (`/api/macro`) |
+| Sesgo/orderflow/niveles de la Sala de Mando, orderflow de Macro, "Próximo riesgo" | Ejemplo |
+| Diario, alertas y progreso de la Academia | Navegador de cada usuario (`localStorage`) |
 
-### Sobre los precios de TradingView
-- Los widgets gratuitos no necesitan cuenta. Tu cuenta Pro de TradingView no se usa ni hace falta.
-- En `js/config.js`, `feed: "cfd"` usa CFD de OANDA y cripto spot, que en los widgets suelen ir en tiempo real.
-  Con `feed: "futures"` se muestran los futuros de CME (MNQ1!, GC1!…), pero en los widgets gratuitos van con unos 10 minutos de retraso.
-- Los símbolos TVC (DXY, US10Y, VIX) no se pueden mostrar en widgets gratuitos; por eso se usan CFD equivalentes.
-- Los widgets llevan el logo de TradingView y sus condiciones de uso: https://www.tradingview.com/widget-docs/
+## Variables de entorno (Vercel → Settings → Environment Variables)
 
-## Probarlo en tu ordenador
+| Variable | Obligatoria | Para qué |
+|---|---|---|
+| `FRED_API_KEY` | Sí | Datos macro de la Reserva Federal (gratis) |
+| `ANTHROPIC_API_KEY` | No | Si existe, Claude redacta el análisis macro; si no, se usan reglas (gratis) |
 
-Necesitas Node.js. En esta carpeta:
+## Pagos y comunidad
+
+- Pago: Whop, producto "Kairos – Membresía" (77 €/mes). Enlace en `js/config.js`.
+- Discord: servidor Kairos; Whop da y quita el rol **Miembro** automáticamente.
+
+## Trabajar en local
 
 ```bash
+npm install
 node server.js
 ```
 
-Y abre http://localhost:5173
+Abre http://localhost:5173 (la función `/api/macro` solo funciona en Vercel; en local la sección Macro muestra los datos de ejemplo).
 
-## Publicarlo
+## Publicar
 
-Al ser una web estática se puede subir tal cual a Netlify, Vercel, Cloudflare Pages o GitHub Pages. En Netlify basta con arrastrar la carpeta a https://app.netlify.com/drop.
-`server.js` y la carpeta `.claude` solo sirven para probar en local.
+```bash
+npx.cmd vercel@48.1.0 deploy --prod --global-config .vercel-kairos
+```
 
-## Configuración
+La sesión de Vercel se guarda en `.vercel-kairos` (no se sube a GitHub).
 
-Todo lo que cambia a menudo está en `js/config.js`: nombre, precio, fuente de datos y símbolos de cada instrumento.
+## Pendiente
 
-## Pendiente para la versión de producción
-
-1. **Usuarios y pagos:** registro e inicio de sesión, suscripción de 77 €/mes con Stripe y el rol de "cliente exclusivo" que desbloquea la Academia. Hoy el bloqueo es solo visual; para que sea seguro, el contenido de la Academia tiene que servirse desde el servidor solo a usuarios con ese rol.
-2. **Orderflow real:** proveedor de datos de futuros (por ejemplo Databento o Rithmic) y un pequeño backend que calcule el delta, el sesgo y los niveles.
-3. **IA:** briefings y resúmenes macro generados con un modelo a partir de esos datos.
-4. **Diario y alertas en el servidor**, para que no se pierdan al cambiar de navegador.
+1. Proteger el área de miembros con el login de Whop (ahora cualquiera puede abrir `app.html`).
+2. Páginas legales: aviso legal, privacidad, términos y cookies.
+3. Dominio propio.
+4. Datos de orderflow reales para la Sala de Mando.
