@@ -1,4 +1,4 @@
-/* Módulo 05 · La Estrategia Secreta MNQ.
+/* Módulo 05 · El Método Kairos MNQ.
    Estrategia de apertura de Nueva York en MNQ con orderflow: zona de desequilibrio, liquidez, imbalances, delta y área de valor.
    Las capturas son operaciones reales del autor (carpeta academia-img) y solo se entregan a compradores del curso. */
 const { C, svg, text, rect, line, circle, arrow, pill, candles, zone, level } = require("./svg");
@@ -68,7 +68,7 @@ const FIG_CHECKLIST = svg((() => {
 
 /* ---------- Lecciones ---------- */
 module.exports = {
-  title: "La Estrategia Secreta MNQ",
+  title: "El Método Kairos MNQ",
   desc: "Apertura de Nueva York con orderflow: desequilibrio, liquidez, imbalances y delta.",
   cover: "img/academia/modulo-5.svg",
   lessons: [

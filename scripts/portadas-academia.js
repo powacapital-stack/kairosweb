@@ -47,7 +47,7 @@ const arts = [
     });
     return s; })(),
 ];
-const names = ["La Sala de Mando", "Oferta y demanda", "Orderflow", "Ejecución", "Estrategia Secreta MNQ", "Operaciones reales"];
+const names = ["La Sala de Mando", "Oferta y demanda", "Orderflow", "Ejecución", "Método Kairos MNQ", "Operaciones reales"];
 const out = path.join(__dirname, "..", "img", "academia");
 names.forEach((n, i) => fs.writeFileSync(path.join(out, `modulo-${i + 1}.svg`), frame(String(i + 1).padStart(2, "0"), n, arts[i])));
 console.log("Portadas creadas en", out);
