@@ -308,7 +308,7 @@
       LIVE = j;
       Object.entries(j.assets).forEach(([s, a]) => { if (ASSETS[s]) ASSETS[s] = { ...ASSETS[s], ...a }; });
       const t = new Date(j.generatedAt).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-      $("mSource").textContent = "DATOS REALES · FRED + IA · " + t;
+      $("mSource").textContent = "DATOS REALES · FRED" + (j.engine === "ia" ? " + IA" : "") + " · " + t;
       $("mSource").classList.add("live-src");
       if (!$("view-macro").hidden) showMacro();
     } catch (e) {

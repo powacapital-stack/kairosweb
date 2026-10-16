@@ -3,13 +3,14 @@
    2) Claude redacta el sesgo, la convicción y el resumen de cada activo.
    La respuesta se guarda en la caché de Vercel 6 horas: como mucho unas 4 llamadas a Claude al día.
 
-   Variables de entorno necesarias (en Vercel → Settings → Environment Variables):
-     FRED_API_KEY       clave gratuita de https://fred.stlouisfed.org/docs/api/api_key.html
-     ANTHROPIC_API_KEY  clave de https://console.anthropic.com/                                    */
+   Variables de entorno (en Vercel → Settings → Environment Variables):
+     FRED_API_KEY       obligatoria, gratuita: https://fred.stlouisfed.org/docs/api/api_key.html
+     ANTHROPIC_API_KEY  opcional: con ella redacta Claude; sin ella se usa el análisis por reglas (gratis)                                   */
 
 const sdk = require("@anthropic-ai/sdk");
 const Anthropic = sdk.default || sdk;
 const { fetchAll, computeFeatures, dirOf } = require("./_lib/macro-core");
+const { analyzeByRules } = require("./_lib/macro-rules");
 
 const MODEL = "claude-opus-5-5";
 const ASSET_KEYS = ["NASDAQ", "DOW", "SP500", "GOLD", "OIL", "EURUSD", "GBPUSD", "USDJPY"];
@@ -84,16 +85,21 @@ function regimeDir(key, regime) {
 
 module.exports = async (req, res) => {
   const fredKey = process.env.FRED_API_KEY;
-  if (!fredKey || !process.env.ANTHROPIC_API_KEY) {
+  if (!fredKey) {
     res.setHeader("Cache-Control", "no-store");
-    return res.status(503).json({ error: "not_configured", message: "Faltan FRED_API_KEY o ANTHROPIC_API_KEY en Vercel." });
+    return res.status(503).json({ error: "not_configured", message: "Falta FRED_API_KEY en Vercel." });
   }
+  const useAI = !!process.env.ANTHROPIC_API_KEY;
 
   try {
     const { data, missing } = await fetchAll(fredKey);
     if (!data.DGS10.length || !data.SP500.length) throw new Error("FRED no devolvió datos (revisa FRED_API_KEY).");
     const f = computeFeatures(data);
 
+    let ai, model = "reglas";
+    if (!useAI) {
+      ai = analyzeByRules(f);
+    } else {
     const client = new Anthropic();
     const response = await client.beta.messages.create({
       model: MODEL,
@@ -116,7 +122,9 @@ module.exports = async (req, res) => {
     if (response.stop_reason === "refusal") throw new Error("El modelo rechazó la petición.");
     if (response.stop_reason === "max_tokens") throw new Error("Respuesta incompleta (max_tokens).");
     const text = response.content.filter(b => b.type === "text").map(b => b.text).join("");
-    const ai = JSON.parse(text);
+    ai = JSON.parse(text);
+    model = response.model;
+    }
 
     const alLabels = ["Macro", "Tendencia 20d", "Momento 5d", "Régimen"];
     const assets = {};
@@ -139,7 +147,8 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       generatedAt: new Date().toISOString(),
       asOf: f.asOf,
-      model: response.model,
+      engine: useAI ? "ia" : "reglas",
+      model,
       missingSeries: missing,
       global: {
         regime: ai.regime, conviction: Math.max(0, Math.min(100, Math.round(ai.conviction))),
