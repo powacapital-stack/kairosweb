@@ -7,6 +7,11 @@ window.KAIROS = {
   // Enlace de pago de Whop (producto "Kairos – Membresía", 77 €/mes).
   checkout: "https://whop.com/kairos-web-steel/kairos-membresia",
 
+  // Curso exclusivo (Academia): pago único con acceso de por vida.
+  // Pega aquí el enlace de pago del producto del curso en Whop.
+  coursePrice: 299,
+  checkoutCourse: "",
+
   // Invitación al servidor de Discord (no caduca).
   discord: "https://discord.gg/TAtJn24562",
 

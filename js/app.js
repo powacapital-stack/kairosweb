@@ -214,6 +214,7 @@
   function show(v) {
     const b = document.querySelector(`#sideNav [data-view="${v}"]`) || document.querySelector('#sideNav [data-view="desk"]');
     v = b.dataset.view;
+    if (window.KairosGuard && !window.KairosGuard(v)) return;
     document.querySelectorAll("#sideNav .side-link").forEach(x => x.classList.toggle("active", x === b));
     const panel = document.getElementById("view-" + v);
     document.querySelectorAll(".main > .content").forEach(c => c.hidden = true);
@@ -229,6 +230,7 @@
     show(v);
   });
 
+  window.KairosShow = show;
   renderChips(); renderQuotes(); renderChart(); renderDesk(); tick();
   window.addEventListener("load", () => show(location.hash.slice(1) || "desk"));
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "desk"));

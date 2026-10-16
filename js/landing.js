@@ -31,6 +31,7 @@
   /* ---------- Enlaces de Discord (desde config.js) ---------- */
   if (K.discord) document.querySelectorAll("[data-discord]").forEach(a => { a.href = K.discord; });
   if (K.checkout) document.querySelectorAll("[data-checkout]").forEach(a => { a.href = K.checkout; });
+  if (K.checkoutCourse) document.querySelectorAll("[data-checkout-course]").forEach(a => { a.href = K.checkoutCourse; });
 
   /* ---------- Navegación y reloj ---------- */
   const nav = document.getElementById("nav");
