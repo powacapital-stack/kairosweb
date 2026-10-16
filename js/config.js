@@ -4,6 +4,9 @@ window.KAIROS = {
   brand: "KAIROS",
   price: { amount: 77, currency: "€", period: "mes" },
 
+  // Enlace de pago de Whop (producto "Kairos – Membresía", 77 €/mes).
+  checkout: "https://whop.com/kairos-web-steel/kairos-membresia",
+
   // Invitación al servidor de Discord (no caduca).
   discord: "https://discord.gg/TAtJn24562",
 
