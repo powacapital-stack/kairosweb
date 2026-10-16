@@ -6,3 +6,9 @@ Thumbs.db
 # Notas internas y prototipo antiguo (se quedan solo en local)
 analisis-distinction.md
 kairos-prototipo.html
+
+# Sesión y enlace de Vercel (no subir)
+.vercel-kairos/
+.vercel/
+
+.vercel

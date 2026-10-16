@@ -1,0 +1,9 @@
+# Archivos que no se publican en Vercel (solo para desarrollo local)
+server.js
+.claude
+README.md
+analisis-distinction.md
+kairos-prototipo.html
+.vercel-kairos
+.gitignore
+.vercelignore
