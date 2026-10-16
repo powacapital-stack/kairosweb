@@ -2,11 +2,12 @@
 const S = require("./_lib/session");
 const CONTENT = require("./_lib/academia-content");
 const EXTRA = require("./_lib/academia-extra");
+const FIGS = require("./_lib/academia-figs");
 
-// Cada lección: título, explicación, clave, pasos para aplicarla, ejemplo práctico y vídeo (si existe)
+// Cada lección: título, explicación, clave, pasos para aplicarla, ejemplo práctico, diagrama y vídeo (si existe)
 const MODULES = CONTENT.map((m, mi) => ({
   ...m,
-  lessons: m.lessons.map((l, li) => ({ ...l, steps: [], example: "", video: "", ...(EXTRA[mi]?.[li] || {}) })),
+  lessons: m.lessons.map((l, li) => ({ ...l, steps: [], example: "", video: "", ...(EXTRA[mi]?.[li] || {}), fig: FIGS[mi]?.[li] || null })),
 }));
 
 module.exports = (req, res) => {

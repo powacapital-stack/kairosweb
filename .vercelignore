@@ -9,3 +9,4 @@ kairos-prototipo.html
 .vercelignore
 brand
 node_modules
+scripts

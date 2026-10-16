@@ -446,3 +446,7 @@ body.gated { overflow: hidden; }
 .viewer-nav .btn:disabled { opacity: .35; cursor: default; }
 body.viewer-open { overflow: hidden; }
 @media (max-width: 600px) { .reader.viewer { top: 0; bottom: 0; left: 0; right: 0; border-radius: 0; padding: 20px 16px; } .reader.viewer .card-head { top: -20px; margin: -20px -16px 0; padding: 14px 16px; } }
+.mod-cover { display: block; width: calc(100% + 40px); max-width: none; height: auto; margin: -20px -20px 4px; border-radius: 14px 14px 0 0; border-bottom: 1px solid rgba(120, 160, 255, .16); }
+.fig { margin: 0; display: grid; gap: 8px; }
+.fig svg { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(120, 160, 255, .18); }
+.fig figcaption { color: var(--muted); font-size: 13px; }

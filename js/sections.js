@@ -440,6 +440,7 @@
       const n = ls.filter((_, li) => done.has(lessonId(mi, li))).length, p = Math.round(n / ls.length * 100), isOpen = expanded.has(mi);
       return `<div class="card mod ${isOpen ? "open" : ""}">
         <button class="mod-toggle" data-mod="${mi}" aria-expanded="${isOpen}">
+          <img class="mod-cover" src="img/academia/modulo-${mi + 1}.svg" alt="" width="640" height="220" loading="lazy">
           <span class="card-head"><span class="mod-num">MÓDULO ${pad(mi + 1)}</span><span class="label">${n}/${ls.length} lecciones <span class="chev">${isOpen ? "▴" : "▾"}</span></span></span>
           <h3>${t}</h3><span class="mod-desc">${d}</span>
           <span class="progress"><i style="width:${p}%"></i></span>
@@ -455,6 +456,7 @@
     r.hidden = false;
     r.innerHTML = `<div class="card-head"><span class="mod-num">MÓDULO ${pad(mi + 1)} · ${esc(MODS[mi][0])} · LECCIÓN ${li + 1} DE ${MODS[mi][2].length}</span><button class="icon-btn" data-act="close" aria-label="Cerrar la lección">Cerrar ✕</button></div>
       <h3>${esc(l.title)}</h3>
+      ${l.fig ? `<figure class="fig">${l.fig.svg}<figcaption>${esc(l.fig.caption)}</figcaption></figure>` : ""}
       ${l.video ? `<div class="video"><iframe src="${esc(l.video)}" title="${esc(l.title)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>` : ""}
       <p class="lead">${esc(l.body)}</p>
       ${l.steps?.length ? `<div class="steps-box"><span class="label">Cómo aplicarlo</span><ol>${l.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></div>` : ""}
