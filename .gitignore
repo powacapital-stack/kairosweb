@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.env
+# Notas internas y prototipo antiguo (se quedan solo en local)
+analisis-distinction.md
+kairos-prototipo.html

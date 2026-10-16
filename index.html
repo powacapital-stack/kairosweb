@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kairos Trading Desk</title>
+<meta name="description" content="Orderflow, sesgo direccional y briefings para traders de futuros, oro, petróleo y forex.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="none" stroke="#e3a640" stroke-width="2"/><path d="M9 23 L9 9 M9 16 L21 8 M13 14 L22 24" stroke="#e3a640" stroke-width="2.6" stroke-linecap="round" fill="none"/></symbol>
+</svg>
+
+<div id="landing">
+  <header class="nav">
+    <div class="wrap">
+      <a class="logo" href="#"><svg class="logo-mark"><use href="#mark"/></svg>KAIROS</a>
+      <nav class="nav-links" aria-label="Principal">
+        <a href="#herramientas">Herramientas</a>
+        <a href="#como">Cómo funciona</a>
+        <a href="#precio">Precio</a>
+        <a href="#faq">Preguntas</a>
+        <a href="app.html">Acceso miembros</a>
+      </nav>
+      <a class="btn primary" href="app.html">Ver la Sala de Mando</a>
+    </div>
+  </header>
+
+  <div class="tape tv-tape" id="tvTape" aria-label="Cotizaciones en vivo"></div>
+
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="label"><span class="dot"></span>&nbsp; Sesión de Londres abierta</span>
+        <h1>Lee el flujo institucional <em>antes de que el precio se mueva.</em></h1>
+        <p class="lead">Kairos resume el orderflow, el sesgo direccional y los niveles clave de futuros, metales, energía y forex en un solo panel. Se actualiza cada minuto durante las sesiones de Londres y Nueva York.</p>
+        <div class="ctas">
+          <a class="btn primary" href="#precio">Hazte miembro</a>
+          <a class="btn" href="app.html">Probar la demo →</a>
+        </div>
+        <div class="hero-stats">
+          <div><span class="label">Briefings</span><b>cada 5 min</b></div>
+          <div><span class="label">Instrumentos</span><b>15</b></div>
+          <div><span class="label">Sesiones</span><b>LDN · NY</b></div>
+        </div>
+      </div>
+      <aside class="mini" aria-label="Nasdaq 100 en vivo">
+        <div class="mini-head"><span class="label"><span class="dot"></span>&nbsp; Nasdaq 100 en vivo</span><span class="label">1D</span></div>
+        <div class="tv-mini" id="tvHero"></div>
+        <div class="note"><span class="label" style="color:var(--brass)">Ejemplo de briefing</span><br>El Nasdaq defiende la zona de demanda. Mientras el delta siga positivo, buscamos continuación hacia la siguiente zona de oferta.</div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="block" id="herramientas">
+    <div class="wrap">
+      <div class="sec-head">
+        <span class="label">La plataforma</span>
+        <h2>Seis herramientas, un solo panel de control</h2>
+        <p>Todo lo que necesitas para decidir si operar, en qué dirección y dónde, sin saltar entre diez pestañas.</p>
+      </div>
+      <div class="tools">
+        <div class="tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><h3>Motor de sesgo</h3><p>Lectura ALCISTA o BAJISTA por instrumento a partir del orderflow, la tendencia de 2H y la estructura de mercado, con un índice de confianza de 0 a 100.</p></div>
+        <div class="tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><h3>Orderflow en vivo</h3><p>Volumen comprador y vendedor, delta acumulado y buckets de 5 minutos para ver dónde entra el tamaño.</p></div>
+        <div class="tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v12H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg><h3>Briefings con IA</h3><p>Resumen del mercado cada 5 minutos en la sesión de NY: niveles clave, zonas de oferta y demanda y notas de riesgo.</p></div>
+        <div class="tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><h3>Calendario económico</h3><p>Eventos de alto impacto con cuenta atrás y filtro por instrumento y zona horaria.</p></div>
+        <div class="tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 16V11a6 6 0 0112 0v5l2 2H4z"/><path d="M10 21h4"/></svg><h3>Alerta de apertura</h3><p>Aviso sonoro a las 15:30 (hora de Madrid) para no perder los primeros 30 minutos de Nueva York.</p></div>
+        <div class="tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3h11l3 3v15H5z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg><h3>Diario de trading</h3><p>Registra cada operación y revisa tu tasa de acierto, el drawdown y el R:R por sesión.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="como">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">Alta</span><h2>Dentro en menos de dos minutos</h2></div>
+      <div class="steps">
+        <div class="step"><h3>Suscríbete</h3><p>Introduce tu email y paga con tarjeta de forma segura. No necesitas crear una cuenta antes.</p></div>
+        <div class="step"><h3>Crea tu contraseña</h3><p>Te llega un email con un enlace único. Eliges tu contraseña y listo.</p></div>
+        <div class="step"><h3>Entra a la Sala de Mando</h3><p>Acceso completo desde el primer minuto, en el ordenador o en el móvil.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="precio">
+    <div class="wrap pricing">
+      <div class="sec-head" style="margin:0">
+        <span class="label">Membresía</span>
+        <h2>Un plan, acceso completo</h2>
+        <p>Sin niveles ni extras. Todas las herramientas desde el primer día y puedes cancelar cuando quieras desde tu cuenta.</p>
+      </div>
+      <div class="price-card">
+        <div class="card-head"><span class="label">Plan mensual</span><span class="label">IVA incluido</span></div>
+        <div class="price">77 € <small>/ mes</small></div>
+        <ul class="checks">
+          <li>Motor de sesgo y confianza</li>
+          <li>Orderflow en vivo de 15 instrumentos</li>
+          <li>Briefings con IA cada 5 minutos</li>
+          <li>Calendario económico y alerta de apertura</li>
+          <li>Diario de trading con informes semanales</li>
+        </ul>
+        <a class="btn primary" href="app.html" style="justify-content:center">Empezar por 77 € al mes</a>
+        <span class="label" style="text-align:center">Pago mensual seguro · Cancela cuando quieras</span>
+        <p style="margin:0;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px">La Academia de estrategia está reservada a clientes exclusivos y se activa por invitación.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="faq">
+    <div class="wrap">
+      <div class="sec-head"><span class="label">Preguntas</span><h2>Lo que más nos preguntan</h2></div>
+      <div class="faq">
+        <details><summary>¿Kairos me dice qué operaciones hacer?</summary><p>No. Kairos ofrece información de mercado y análisis. Las decisiones de inversión son tuyas y no constituyen asesoramiento financiero.</p></details>
+        <details><summary>¿Qué instrumentos cubre?</summary><p>Futuros de índices (MNQ, NQ, MES, ES, MYM, YM), oro (GC, MGC), petróleo (CL), los pares EUR/USD, GBP/USD y USD/JPY, y BTC, ETH y SOL.</p></details>
+        <details><summary>¿Funciona en el móvil?</summary><p>Sí. La plataforma es web y se adapta a cualquier pantalla, sin descargar ninguna app.</p></details>
+        <details><summary>¿Puedo cancelar en cualquier momento?</summary><p>Sí, desde la sección Cuenta. No hay permanencia.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="row"><a class="logo" href="#"><svg class="logo-mark"><use href="#mark"/></svg>KAIROS</a><span>Aviso de riesgo · Términos · Privacidad · Programa de afiliados</span></div>
+      <p style="margin:0" class="attrib">Gráficos y cotizaciones: <a href="https://www.tradingview.com/" target="_blank" rel="noopener">TradingView</a>.</p>
+      <p style="margin:0">El trading con apalancamiento conlleva un riesgo alto de pérdida. Kairos no es un asesor de inversiones registrado y su contenido es solo informativo. © 2026 Kairos.</p>
+    </div>
+  </footer>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/tv.js"></script>
+<script src="js/landing.js"></script>
+</body>
+</html>
