@@ -49,6 +49,7 @@
   const INST = { IDX: "Índices", GC: "Oro", CL: "Petróleo", FX: "Forex" };
   const monday = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - (today.getUTCDay() + 6) % 7));
   CAL.forEach(e => { const [h, m] = e.t.split(":").map(Number); e.at = new Date(monday.getTime() + e.d * 864e5 + (h * 60 + m) * 6e4); });
+  CAL.push(...CAL.map(e => ({ ...e, at: new Date(e.at.getTime() + 7 * 864e5) })));
   CAL.sort((a, b) => a.at - b.at);
   const cal = { imp: "all", inst: "all", tz: "Europe/Madrid" };
   const calMatch = e => (cal.imp === "all" || e.i === cal.imp) && (cal.inst === "all" || e.x.includes(cal.inst));
@@ -79,7 +80,20 @@
     $("mNextName").textContent = n ? n.n : "Sin eventos de alto impacto esta semana";
     $("mNextCount").textContent = n ? countdown(n.at - Date.now()) : "—";
     const el = $("mANext");
-    if (el && macroTab !== "global") { const e = assetEvents(macroTab)[0]; el.textContent = e ? countdown(e.at - Date.now()) : "—"; }
+    if (macroTab !== "global") {
+      const e = assetEvents(macroTab)[0], txt = e ? countdown(e.at - Date.now()) : "—";
+      if (el) el.textContent = txt;
+      document.querySelectorAll("[data-anext]").forEach(x => { x.textContent = txt; });
+    }
+  }
+
+  // Cuadrícula "Inteligencia por activo" de la vista Global
+  function renderAssetGrid() {
+    $("mAssetsGrid").innerHTML = `<div class="card"><div class="card-head"><span class="label">Inteligencia por activo</span><span class="label">Pulsa un activo para ver su panel</span></div>
+      <div class="asset-grid">${["MNQ", "NQ", "USTEC", "MYM", "ES", "GC", "CL", "EUR/USD", "GBP/USD", "USD/JPY"].map(s => { const a = ASSETS[s], r = alignOf(a);
+        return `<button class="asset-tile" data-asset="${s}"><span class="asset-sym">${s}</span><span class="label" style="font-size:10px">${a.n}</span>
+          <b class="${bcls(a.bias)}">${a.bias.toUpperCase()}</b><div class="progress"><i style="width:${a.conv}%"></i></div>
+          <span class="pill ${r.c}">${r.short}</span></button>`; }).join("")}</div></div>`;
   }
 
   /* ---------- MACRO POR ACTIVO ---------- */
@@ -167,6 +181,7 @@
       alertFormOpen = false; store.set("kairos-alerts", alerts); renderAlerts(); return; }
     const tg = t.closest("[data-alert-toggle]"); if (tg) { const a = alerts.find(x => x.id === tg.dataset.alertToggle); a.on = !a.on; store.set("kairos-alerts", alerts); renderAlerts(); return; }
     const dl = t.closest("[data-alert-del]"); if (dl) { alerts = alerts.filter(x => x.id !== dl.dataset.alertDel); store.set("kairos-alerts", alerts); renderAlerts(); return; }
+    if (t.closest("[data-macro-back]")) { selectMacro("global"); return; }
     const row = t.closest("[data-asset]"); if (row) selectMacro(row.dataset.asset);
   });
 
@@ -185,15 +200,22 @@
 
   function renderAsset(s) {
     const a = ASSETS[s], r = alignOf(a), evs = assetEvents(s), nx = evs[0];
-    const conf = Math.round((a.conv + a.al.filter(v => bcls(v) === bcls(a.al[0])).length * 12) * .85);
+    const conf = Math.min(99, Math.round((a.conv + a.al.filter(v => bcls(v) === bcls(a.al[0])).length * 12) * .85));
     const convTxt = a.conv >= 60 ? "CONVICCIÓN ALTA" : a.conv >= 40 ? "CONVICCIÓN MEDIA" : "CONVICCIÓN BAJA";
     const [buy, delta] = a.flow, sig = buy >= 55 ? "COMPRADORA" : buy <= 45 ? "VENDEDORA" : "NEUTRAL", sigC = buy >= 55 ? "up" : buy <= 45 ? "down" : "flat";
     const fconv = Math.abs(buy - 50) >= 12 ? "ALTA" : Math.abs(buy - 50) >= 6 ? "MEDIA" : "BAJA";
     $("mTitle").textContent = `${s} — ${a.n} · inteligencia macro`;
     $("mAsset").innerHTML = `
-      <div class="card span-4"><span class="label">Sesgo macro</span><div class="regime ${bcls(a.bias)}">${a.bias.toUpperCase()}</div>
-        <div style="display:grid;gap:6px"><span class="label">Convicción · <b style="color:var(--text)">${a.conv}/100</b></span><div class="progress"><i style="width:${a.conv}%"></i></div><small class="mono" style="color:var(--muted)">${convTxt}</small></div>
-        <span class="label" style="margin-top:4px">Motores principales</span>
+      <div class="card span-12 intel-hero">
+        <div class="intel-head"><span class="label"><span class="dot"></span>&nbsp; ${s} — ${a.n.toUpperCase()} · INTELIGENCIA MACRO</span><button class="icon-btn" data-macro-back>← Global</button></div>
+        <div class="intel-grid">
+          <div class="intel-cell"><span class="label">Sesgo macro</span><b class="intel-big ${bcls(a.bias)}">${a.bias.toUpperCase()}</b><small>Motor principal: ${a.key}</small></div>
+          <div class="intel-cell"><span class="label">Convicción</span><b class="intel-mid">${a.conv}<small>/100</small></b><div class="progress"><i style="width:${a.conv}%"></i></div><small>${convTxt}</small></div>
+          <div class="intel-cell"><span class="label">Alineación Kairos</span><span class="pill ${r.c} intel-pill">${r.t}</span><small>Confianza ${conf}% · macro, sesgo, orderflow y mapa de calor</small></div>
+          <div class="intel-cell"><span class="label">Próximo riesgo</span><b class="intel-event">${nx ? esc(nx.n) : "Sin eventos esta semana"}</b><span class="intel-count mono" data-anext>${nx ? countdown(nx.at - Date.now()) : "—"}</span><small>${nx ? evTime(nx.at) + " · alto impacto" : ""}</small></div>
+        </div>
+      </div>
+      <div class="card span-4"><span class="label">Motores principales</span>
         <div class="drv">${a.dr.map(d => `<div><span>${d[0]}</span><small>${d[1]}</small><span class="pill ${bcls(d[2])}">${d[2].toUpperCase()}</span></div>`).join("")}</div></div>
       <div class="card span-4"><span class="label">Alineación Kairos</span>
         <div class="al4">${["Macro", "Sesgo", "Orderflow", "Mapa de calor"].map((l, i) => `<div><span class="label" style="font-size:10px">${l}</span><b class="${bcls(a.al[i])}">${a.al[i]}</b></div>`).join("")}</div>
@@ -251,7 +273,7 @@
     $("mAlign").innerHTML = `<thead><tr><th>Activo</th><th>Sesgo macro</th><th>Orderflow</th><th>Motor principal</th><th>Alineación</th></tr></thead><tbody>` +
       ["NQ", "ES", "GC", "CL", "EUR/USD", "USD/JPY"].map(s => { const a = ASSETS[s], r = alignOf(a);
         return `<tr data-asset="${s}" style="cursor:pointer"><td><b>${s}</b></td><td class="${bcls(a.bias)}">${a.bias}</td><td class="${bcls(a.al[2])}">${a.al[2]}</td><td style="color:var(--muted)">${a.key}</td><td><span class="pill ${r.c}">${r.short}</span></td></tr>`; }).join("") + "</tbody>";
-    renderDivs($("mDivG"), null); renderAlerts();
+    renderDivs($("mDivG"), null); renderAlerts(); renderAssetGrid();
     const banks = [["Fed", "EE. UU.", "Restrictiva", "4,25 %"], ["BCE", "Eurozona", "Expansiva", "2,00 %"], ["BoE", "Reino Unido", "Neutral", "4,00 %"], ["BoJ", "Japón", "Restrictiva", "0,50 %"], ["PBoC", "China", "Estímulos", "3,00 %"]];
     const bc = { Restrictiva: "down", Expansiva: "up", "Estímulos": "up", Neutral: "flat" };
     $("mBanks").innerHTML = banks.map(b => `<div class="cb"><span class="label">${b[1]}</span><b>${b[0]} · <span class="mono">${b[3]}</span></b><span class="pill ${bc[b[2]]}" style="justify-self:start">${b[2].toUpperCase()}</span></div>`).join("");

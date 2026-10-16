@@ -377,3 +377,24 @@ body::after { background: radial-gradient(45vmax 45vmax at 10% -10%, rgba(0, 240
 .field select, .field input, .field textarea { background: rgba(5, 6, 11, .6); border-color: rgba(120, 160, 255, .18); border-radius: 10px; }
 .tbl th { background: rgba(14, 18, 32, .7); }
 .tbl-wrap { border-color: rgba(120, 160, 255, .14); border-radius: 14px; background: rgba(14, 18, 32, .45); }
+
+/* ---------- Macro: panel de inteligencia por activo ---------- */
+.intel-hero { border-color: rgba(0, 240, 255, .35); background: linear-gradient(135deg, rgba(0, 240, 255, .08), rgba(112, 0, 255, .1) 60%, rgba(14, 18, 32, .6)); box-shadow: 0 0 40px rgba(0, 240, 255, .1); }
+.intel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.intel-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: rgba(120, 160, 255, .14); border-radius: 12px; overflow: hidden; }
+.intel-cell { background: rgba(8, 10, 18, .75); padding: 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.intel-cell small { color: var(--muted); font-size: 12.5px; }
+.intel-big { font: 800 clamp(24px, 2.6vw, 34px)/1 var(--f-display); letter-spacing: .04em; text-shadow: 0 0 22px currentColor; }
+.intel-mid { font: 700 28px/1 var(--f-data); } .intel-mid small { font-size: 14px; color: var(--muted); }
+.intel-pill { justify-self: start; font-size: 12px; padding: 7px 10px; }
+.intel-event { font: 600 16px/1.3 var(--f-body); }
+.intel-count { font-size: 24px; font-weight: 700; color: #00f0ff; text-shadow: 0 0 14px rgba(0, 240, 255, .5); }
+@media (max-width: 1000px) { .intel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .intel-grid { grid-template-columns: 1fr; } }
+
+.asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.asset-tile { display: grid; gap: 6px; text-align: left; padding: 14px; border-radius: 12px; background: rgba(8, 10, 18, .6); border: 1px solid rgba(120, 160, 255, .16); color: var(--text); transition: border-color .2s, box-shadow .2s, transform .2s; }
+.asset-tile:hover { border-color: rgba(0, 240, 255, .55); box-shadow: 0 0 22px rgba(0, 240, 255, .15); transform: translateY(-2px); }
+.asset-sym { font: 800 16px var(--f-display); letter-spacing: .04em; }
+.asset-tile b { font: 700 13px var(--f-data); letter-spacing: .1em; }
+.asset-tile .pill { justify-self: start; }
