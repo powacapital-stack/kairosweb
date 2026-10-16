@@ -21,6 +21,9 @@
   const state = m => m.buy >= 55 ? "up" : m.buy <= 45 ? "down" : "flat";
   const stateTxt = { up: "ALCISTA", down: "BAJISTA", flat: "NEUTRAL" };
 
+  // Enlaces de Discord (desde config.js)
+  if (K.discord) document.querySelectorAll("[data-discord]").forEach(a => { a.href = K.discord; });
+
   // ---------- Selector de mercados ----------
   function renderChips() {
     document.getElementById("markets").innerHTML = '<span class="label" style="align-self:center;margin-right:6px">Mercados</span>' +

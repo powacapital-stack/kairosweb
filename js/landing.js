@@ -28,6 +28,9 @@
     trendLineColor: "rgba(0, 240, 255, 1)", underLineColor: "rgba(0, 240, 255, 0.18)", underLineBottomColor: "rgba(112, 0, 255, 0)",
   });
 
+  /* ---------- Enlaces de Discord (desde config.js) ---------- */
+  if (K.discord) document.querySelectorAll("[data-discord]").forEach(a => { a.href = K.discord; });
+
   /* ---------- Navegación y reloj ---------- */
   const nav = document.getElementById("nav");
   const onScroll = () => nav.classList.toggle("is-scrolled", window.scrollY > 20);
