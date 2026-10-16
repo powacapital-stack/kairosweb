@@ -176,9 +176,9 @@
     pts2[n - 1] = a.flow[1];
     const mn = Math.min(0, ...pts2), mx = Math.max(0, ...pts2), sp = mx - mn || 1;
     const X = i => i / (n - 1) * W, Y = y => 4 + (mx - y) / sp * (H - 8);
-    const line = pts2.map((y, i) => `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(" "), col = a.flow[1] >= 0 ? "#2fbf8a" : "#e5564f";
+    const line = pts2.map((y, i) => `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(" "), col = a.flow[1] >= 0 ? "#22f5a5" : "#ff4d7d";
     return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Delta acumulado">
-      <line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="#8a96a6" stroke-dasharray="3 3"/>
+      <line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="#8b93ad" stroke-dasharray="3 3"/>
       <polygon points="0,${Y(0)} ${line} ${W},${Y(0)}" fill="${col}" fill-opacity=".15"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2"/>
       <circle cx="${X(n - 1)}" cy="${Y(pts2[n - 1])}" r="3.5" fill="${col}"/></svg>`;
   }
@@ -259,7 +259,7 @@
     const C = [[1, .94, -.12, -.48, .15, -.56], [.94, 1, -.05, -.41, .22, -.49], [-.12, -.05, 1, -.62, .18, -.35], [-.48, -.41, -.62, 1, -.08, .58], [.15, .22, .18, -.08, 1, .12], [-.56, -.49, -.35, .58, .12, 1]];
     $("mCorr").style.gridTemplateColumns = `48px repeat(${A.length}, minmax(44px, 1fr))`;
     $("mCorr").innerHTML = "<div></div>" + A.map(a => `<div class="label">${a}</div>`).join("") +
-      A.map((a, i) => `<div class="label">${a}</div>` + C[i].map(v => `<div style="background:color-mix(in srgb, ${v >= 0 ? "#2fbf8a" : "#e5564f"} ${(Math.abs(v) * 70).toFixed(0)}%, #18202a)">${v.toFixed(2).replace(".", ",")}</div>`).join("")).join("");
+      A.map((a, i) => `<div class="label">${a}</div>` + C[i].map(v => `<div style="background:color-mix(in srgb, ${v >= 0 ? "#22f5a5" : "#ff4d7d"} ${(Math.abs(v) * 70).toFixed(0)}%, #121830)">${v.toFixed(2).replace(".", ",")}</div>`).join("")).join("");
     $("mBriefTime").textContent = "Actualizado " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
     tickMacro();
   }
@@ -311,10 +311,10 @@
       const X = i => L + i / (curve.length - 1 || 1) * (W - L - R), Y = v => T + (mx - v) / span * (H - T - B);
       const ticks = [mn, mn + span / 3, mn + span * 2 / 3, mx];
       const line = curve.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
-      const end = curve.at(-1), col = end >= 0 ? "#2fbf8a" : "#e5564f";
+      const end = curve.at(-1), col = end >= 0 ? "#22f5a5" : "#ff4d7d";
       $("jCurve").innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="height:auto" role="img" aria-label="Curva de capital">
-        ${ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="#243040" stroke-width="1"/><text x="${L - 6}" y="${Y(t) + 3}" text-anchor="end">${Math.round(t)}</text>`).join("")}
-        <line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="#8a96a6" stroke-dasharray="3 3" stroke-width="1"/>
+        ${ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="#1d2742" stroke-width="1"/><text x="${L - 6}" y="${Y(t) + 3}" text-anchor="end">${Math.round(t)}</text>`).join("")}
+        <line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="#8b93ad" stroke-dasharray="3 3" stroke-width="1"/>
         <polygon points="${X(0)},${Y(0)} ${line} ${X(curve.length - 1)},${Y(0)}" fill="${col}" fill-opacity=".14"/>
         <polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
         <circle cx="${X(curve.length - 1)}" cy="${Y(end)}" r="4" fill="${col}"/>
