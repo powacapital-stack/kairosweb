@@ -38,8 +38,16 @@ const arts = [
     s += rect(330, 186, 70, 14, C.dn, { op: .9, rx: 3 }) + rect(404, 186, 60, 14, C.up, { op: .6, rx: 3 }) + rect(468, 186, 76, 14, C.dn, { op: .9, rx: 3 });
     s += text(612, 198, "−3.150", { size: 12, fill: C.dn, anchor: "end", weight: 700, mono: true });
     return s; })(),
+  (() => { // Operaciones reales: tres capturas apiladas con marcas de entrada y objetivo
+    let s = "";
+    [[330, 40, -6], [380, 56, 0], [430, 72, 6]].forEach(([x, y, r], i) => {
+      s += `<g transform="rotate(${r} ${x + 90} ${y + 60})">` + rect(x, y, 180, 120, "#10172e", { stroke: i === 2 ? C.cy : C.ln, rx: 8 });
+      const ch = candles([20, 22, 21, 25, 24, 28, 27, 31, 30, 34], { x0: x + 8, x1: x + 172, y0: y + 12, y1: y + 108 });
+      s += ch.svg + (i === 2 ? line(x + 8, ch.y(24), x + 172, ch.y(24), C.cy, { dash: "4 3" }) + line(x + 8, ch.y(33), x + 172, ch.y(33), C.up, { dash: "4 3" }) : "") + "</g>";
+    });
+    return s; })(),
 ];
-const names = ["La Sala de Mando", "Oferta y demanda", "Orderflow", "Ejecución", "Estrategia Secreta MNQ"];
+const names = ["La Sala de Mando", "Oferta y demanda", "Orderflow", "Ejecución", "Estrategia Secreta MNQ", "Operaciones reales"];
 const out = path.join(__dirname, "..", "img", "academia");
 names.forEach((n, i) => fs.writeFileSync(path.join(out, `modulo-${i + 1}.svg`), frame(String(i + 1).padStart(2, "0"), n, arts[i])));
 console.log("Portadas creadas en", out);

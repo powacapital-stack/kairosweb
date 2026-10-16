@@ -451,3 +451,5 @@ body.viewer-open { overflow: hidden; }
 .fig svg { display: block; width: 100%; height: auto; border-radius: 12px; border: 1px solid rgba(120, 160, 255, .18); }
 .fig figcaption { color: var(--muted); font-size: 13px; }
 .fig.shot img { display: block; justify-self: center; width: auto; max-width: 100%; min-width: min(100%, 360px); height: auto; border-radius: 12px; border: 1px solid rgba(120, 160, 255, .18); background: #1e1f24; }
+.reader .disclaimer { color: var(--muted); font-size: 12px; font-style: italic; margin: 0; }
+.fig.shot a { display: grid; justify-items: center; cursor: zoom-in; }

@@ -1,10 +1,9 @@
 /* Módulo 05 · La Estrategia Secreta MNQ.
    Estrategia de apertura de Nueva York en MNQ con orderflow: zona de desequilibrio, liquidez, imbalances, delta y área de valor.
    Las capturas son operaciones reales del autor (carpeta academia-img) y solo se entregan a compradores del curso. */
-const fs = require("fs"), path = require("path");
 const { C, svg, text, rect, line, circle, arrow, pill, candles, zone, level } = require("./svg");
 
-const shot = (file, caption) => ({ caption, src: "data:image/png;base64," + fs.readFileSync(path.join(__dirname, "academia-img", file)).toString("base64") });
+const shot = (file, caption) => ({ caption, src: "/api/academia-img?f=" + file });
 const title = s => text(24, 26, s, { size: 12, fill: C.cy, weight: 700, mono: true });
 const num = (x, y, n, color = C.cy) => circle(x, y, 11, C.bg, { stroke: color }) + text(x, y + 4, n, { size: 12, fill: color, anchor: "middle", weight: 700 });
 
