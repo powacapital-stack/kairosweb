@@ -8,3 +8,4 @@ kairos-prototipo.html
 .gitignore
 .vercelignore
 brand
+node_modules

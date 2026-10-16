@@ -1,0 +1,9 @@
+{
+  "name": "kairos-web",
+  "private": true,
+  "description": "Web de Kairos: landing, área de miembros y API macro (Vercel).",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@anthropic-ai/sdk": "0.131.0"
+  }
+}

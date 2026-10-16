@@ -156,7 +156,7 @@
     <div class="content" id="view-macro" hidden>
       <div class="view-head">
         <div><span class="label">Macro</span><h2 id="mTitle">Panorama macro global</h2><p>Qué está moviendo los mercados a nivel global y qué implica para los activos que operas.</p></div>
-        <span class="demo-tag">DATOS DE EJEMPLO</span>
+        <span class="demo-tag" id="mSource">DATOS DE EJEMPLO</span>
       </div>
       <div style="overflow-x:auto"><div class="seg" id="mTabs">
         <button aria-pressed="true" data-v="global">Global</button><button aria-pressed="false" data-v="MNQ">MNQ</button><button aria-pressed="false" data-v="NQ">NQ</button><button aria-pressed="false" data-v="USTEC">USTEC</button><button aria-pressed="false" data-v="MYM">MYM</button><button aria-pressed="false" data-v="ES">ES</button><button aria-pressed="false" data-v="GC">Oro (GC)</button><button aria-pressed="false" data-v="CL">CL</button><button aria-pressed="false" data-v="EUR/USD">EUR/USD</button><button aria-pressed="false" data-v="GBP/USD">GBP/USD</button><button aria-pressed="false" data-v="USD/JPY">USD/JPY</button>
@@ -165,17 +165,17 @@
       <div class="grid" id="mGlobal">
         <div class="span-12" id="mAssetsGrid"></div>
         <div class="span-12 macro-quotes" id="tvMacroQuotes"></div>
-        <div class="card span-4"><span class="label">Régimen global</span><div class="regime down" id="mRegime">RISK-OFF</div><small style="color:var(--muted)">Postura defensiva: rentabilidades al alza y dólar fuerte.</small></div>
+        <div class="card span-4"><span class="label">Régimen global</span><div class="regime down" id="mRegime">RISK-OFF</div><small style="color:var(--muted)" id="mRegimeNote">Postura defensiva: rentabilidades al alza y dólar fuerte.</small></div>
         <div class="card span-4"><span class="label">Convicción macro</span><div class="regime" id="mConv" style="color:var(--brass)">42<small style="font-size:16px;color:var(--muted)"> / 100</small></div><div class="progress"><i id="mConvBar" style="width:42%"></i></div></div>
         <div class="card span-4"><span class="label">Próximo evento de riesgo</span><b style="font:600 18px var(--f-display)" id="mNextName">—</b><div class="regime mono" style="font-size:28px" id="mNextCount">—</div></div>
 
         <div class="card span-7">
           <div class="card-head"><span class="label">Resumen macro</span><span class="label" id="mBriefTime"></span></div>
-          <p style="margin:0">El sentimiento de riesgo sigue a la defensiva. La rentabilidad del bono a 10 años de EE. UU. sube por tercera sesión y el índice dólar se mantiene por encima de 104, lo que presiona a la renta variable tecnológica. El oro aguanta gracias a la demanda refugio pese al dólar fuerte, una divergencia que suele anticipar giros. El crudo cotiza con prima geopolítica.</p>
+          <p style="margin:0" id="mBrief">El sentimiento de riesgo sigue a la defensiva. La rentabilidad del bono a 10 años de EE. UU. sube por tercera sesión y el índice dólar se mantiene por encima de 104, lo que presiona a la renta variable tecnológica. El oro aguanta gracias a la demanda refugio pese al dólar fuerte, una divergencia que suele anticipar giros. El crudo cotiza con prima geopolítica.</p>
           <div class="meta-row">
-            <div><span class="label">Motor principal</span><b>Tipos de EE. UU.</b></div>
-            <div><span class="label">Ventana de riesgo</span><b>Apertura NY</b></div>
-            <div><span class="label">Sesgo macro</span><b class="down">Defensivo</b></div>
+            <div><span class="label">Motor principal</span><b id="mPrimary">Tipos de EE. UU.</b></div>
+            <div><span class="label">Ventana de riesgo</span><b id="mWindow">Apertura NY</b></div>
+            <div><span class="label">Sesgo macro</span><b class="down" id="mBias">Defensivo</b></div>
           </div>
         </div>
         <div class="card span-5">

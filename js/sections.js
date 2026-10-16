@@ -211,14 +211,14 @@
         <div class="intel-grid">
           <div class="intel-cell"><span class="label">Sesgo macro</span><b class="intel-big ${bcls(a.bias)}">${a.bias.toUpperCase()}</b><small>Motor principal: ${a.key}</small></div>
           <div class="intel-cell"><span class="label">Convicción</span><b class="intel-mid">${a.conv}<small>/100</small></b><div class="progress"><i style="width:${a.conv}%"></i></div><small>${convTxt}</small></div>
-          <div class="intel-cell"><span class="label">Alineación Kairos</span><span class="pill ${r.c} intel-pill">${r.t}</span><small>Confianza ${conf}% · macro, sesgo, orderflow y mapa de calor</small></div>
-          <div class="intel-cell"><span class="label">Próximo riesgo</span><b class="intel-event">${nx ? esc(nx.n) : "Sin eventos esta semana"}</b><span class="intel-count mono" data-anext>${nx ? countdown(nx.at - Date.now()) : "—"}</span><small>${nx ? evTime(nx.at) + " · alto impacto" : ""}</small></div>
+          <div class="intel-cell"><span class="label">Alineación Kairos</span><span class="pill ${r.c} intel-pill">${r.t}</span><small>Confianza ${conf}% · ${(a.alLabels || ["macro", "sesgo", "orderflow", "mapa de calor"]).join(", ").toLowerCase()}</small></div>
+          <div class="intel-cell"><span class="label">Próximo riesgo · ejemplo</span><b class="intel-event">${nx ? esc(nx.n) : "Sin eventos esta semana"}</b><span class="intel-count mono" data-anext>${nx ? countdown(nx.at - Date.now()) : "—"}</span><small>${nx ? evTime(nx.at) + " · alto impacto" : ""}</small></div>
         </div>
       </div>
       <div class="card span-4"><span class="label">Motores principales</span>
         <div class="drv">${a.dr.map(d => `<div><span>${d[0]}</span><small>${d[1]}</small><span class="pill ${bcls(d[2])}">${d[2].toUpperCase()}</span></div>`).join("")}</div></div>
       <div class="card span-4"><span class="label">Alineación Kairos</span>
-        <div class="al4">${["Macro", "Sesgo", "Orderflow", "Mapa de calor"].map((l, i) => `<div><span class="label" style="font-size:10px">${l}</span><b class="${bcls(a.al[i])}">${a.al[i]}</b></div>`).join("")}</div>
+        <div class="al4">${(a.alLabels || ["Macro", "Sesgo", "Orderflow", "Mapa de calor"]).map((l, i) => `<div><span class="label" style="font-size:10px">${l}</span><b class="${bcls(a.al[i])}">${a.al[i]}</b></div>`).join("")}</div>
         <span class="pill ${r.c}" style="justify-self:start;font-size:13px;padding:8px 12px">${r.t}</span>
         <div style="display:grid;gap:6px"><span class="label">Confianza · <b style="color:var(--text)">${conf}%</b></span><div class="progress"><i style="width:${conf}%"></i></div></div>
         <span class="label" style="margin-top:4px">Divergencias</span><div class="div-list" id="mDivA"></div></div>
@@ -232,7 +232,7 @@
         ${a.dr.map(d => `<tr><td><b>${d[0]}</b></td><td>${d[1]}</td><td><span class="pill ${bcls(d[2])}">${d[2].toUpperCase()}</span></td><td style="color:var(--muted)">${d[3]}</td></tr>`).join("")}</tbody></table></div></div>
       <div class="card span-5"><div class="card-head"><span class="label">Resumen IA del activo</span><span class="label">${new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</span></div>
         <p style="margin:0">${a.brief}</p></div>
-      <div class="card span-7"><span class="label">Señal de orderflow macro</span>
+      <div class="card span-7"><div class="card-head"><span class="label">Señal de orderflow macro</span><span class="demo-tag">EJEMPLO</span></div>
         <div style="display:grid;gap:8px">
           <div class="bar-row"><span>Presión compradora</span><div class="track"><i style="left:0;width:${buy}%;background:var(--up)"></i></div><span class="mono up" style="text-align:right">${buy}%</span></div>
           <div class="bar-row"><span>Presión vendedora</span><div class="track"><i style="left:0;width:${100 - buy}%;background:var(--down)"></i></div><span class="mono down" style="text-align:right">${100 - buy}%</span></div>
@@ -265,25 +265,55 @@
       window.KAIROS.macroQuotes.forEach((q, i) => { const c = document.createElement("div"); c.className = "card tv-quote"; c.id = "tvmq" + i; $("tvMacroQuotes").appendChild(c); tvWidget(c, "single-quote", { symbol: q.tv, width: "100%" }); }); }
     const days = []; const d = new Date(today);
     while (days.length < 7) { if (d.getDay() % 6 !== 0) days.unshift(new Date(d)); d.setDate(d.getDate() - 1); }
-    const reg = ["Risk-on", "Neutral", "Neutral", "Risk-off", "Risk-off", "Neutral", "Risk-off"];
+    const reg = LIVE ? LIVE.global.regimeHistory.map(r => r.regime) : ["Risk-on", "Neutral", "Neutral", "Risk-off", "Risk-off", "Neutral", "Risk-off"];
+    if (LIVE) { days.length = 0; LIVE.global.regimeHistory.forEach(r => days.push(new Date(r.date + "T12:00:00"))); }
     const rc = { "Risk-on": "var(--up-dim)", "Neutral": "#c9b45824", "Risk-off": "var(--down-dim)" };
     $("mHist").innerHTML = days.map((x, i) => `<div><span style="background:${rc[reg[i]]}">${reg[i].replace("Risk-", "").toUpperCase()}</span>${i === 6 ? "Hoy" : cap(x.toLocaleDateString("es-ES", { weekday: "short" }).replace(".", ""))}</div>`).join("");
-    const drv = [["Apetito de riesgo", -38], ["Dólar (DXY)", 55], ["Bono 10 años", 62], ["Volatilidad (VIX)", 30], ["Crédito", -15]];
+    const drv = LIVE ? LIVE.global.scores.map(x => [x.name, x.v]) : [["Apetito de riesgo", -38], ["Dólar (DXY)", 55], ["Bono 10 años", 62], ["Volatilidad (VIX)", 30], ["Crédito", -15]];
     $("mDrivers").innerHTML = drv.map(([n, v]) => `<div class="bar-row"><span>${n}</span><div class="track"><i style="left:${v >= 0 ? 50 : 50 + v / 2}%;width:${Math.abs(v) / 2}%;background:${v >= 0 ? "var(--up)" : "var(--down)"}"></i><i style="left:50%;width:1px;background:var(--muted)"></i></div><span class="mono ${v >= 0 ? "up" : "down"}" style="text-align:right">${v > 0 ? "+" : ""}${v}</span></div>`).join("");
     $("mAlign").innerHTML = `<thead><tr><th>Activo</th><th>Sesgo macro</th><th>Orderflow</th><th>Motor principal</th><th>Alineación</th></tr></thead><tbody>` +
       ["NQ", "ES", "GC", "CL", "EUR/USD", "USD/JPY"].map(s => { const a = ASSETS[s], r = alignOf(a);
         return `<tr data-asset="${s}" style="cursor:pointer"><td><b>${s}</b></td><td class="${bcls(a.bias)}">${a.bias}</td><td class="${bcls(a.al[2])}">${a.al[2]}</td><td style="color:var(--muted)">${a.key}</td><td><span class="pill ${r.c}">${r.short}</span></td></tr>`; }).join("") + "</tbody>";
     renderDivs($("mDivG"), null); renderAlerts(); renderAssetGrid();
     const banks = [["Fed", "EE. UU.", "Restrictiva", "4,25 %"], ["BCE", "Eurozona", "Expansiva", "2,00 %"], ["BoE", "Reino Unido", "Neutral", "4,00 %"], ["BoJ", "Japón", "Restrictiva", "0,50 %"], ["PBoC", "China", "Estímulos", "3,00 %"]];
+    if (LIVE && LIVE.global.policy) { const p = LIVE.global.policy, f = x => x == null ? null : x.toFixed(2).replace(".", ",") + " %"; if (f(p.fed_upper)) banks[0][3] = f(p.fed_upper); if (f(p.ecb_deposit)) banks[1][3] = f(p.ecb_deposit); }
     const bc = { Restrictiva: "down", Expansiva: "up", "Estímulos": "up", Neutral: "flat" };
     $("mBanks").innerHTML = banks.map(b => `<div class="cb"><span class="label">${b[1]}</span><b>${b[0]} · <span class="mono">${b[3]}</span></b><span class="pill ${bc[b[2]]}" style="justify-self:start">${b[2].toUpperCase()}</span></div>`).join("");
-    const A = ["NQ", "ES", "GC", "DXY", "CL", "10Y"];
-    const C = [[1, .94, -.12, -.48, .15, -.56], [.94, 1, -.05, -.41, .22, -.49], [-.12, -.05, 1, -.62, .18, -.35], [-.48, -.41, -.62, 1, -.08, .58], [.15, .22, .18, -.08, 1, .12], [-.56, -.49, -.35, .58, .12, 1]];
+    const A = LIVE ? LIVE.global.correlation.labels : ["NQ", "ES", "GC", "DXY", "CL", "10Y"];
+    const C = LIVE ? LIVE.global.correlation.matrix.map(r => r.map(v => v == null ? 0 : v)) : [[1, .94, -.12, -.48, .15, -.56], [.94, 1, -.05, -.41, .22, -.49], [-.12, -.05, 1, -.62, .18, -.35], [-.48, -.41, -.62, 1, -.08, .58], [.15, .22, .18, -.08, 1, .12], [-.56, -.49, -.35, .58, .12, 1]];
     $("mCorr").style.gridTemplateColumns = `48px repeat(${A.length}, minmax(44px, 1fr))`;
     $("mCorr").innerHTML = "<div></div>" + A.map(a => `<div class="label">${a}</div>`).join("") +
       A.map((a, i) => `<div class="label">${a}</div>` + C[i].map(v => `<div style="background:color-mix(in srgb, ${v >= 0 ? "#22f5a5" : "#ff4d7d"} ${(Math.abs(v) * 70).toFixed(0)}%, #121830)">${v.toFixed(2).replace(".", ",")}</div>`).join("")).join("");
-    $("mBriefTime").textContent = "Actualizado " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    $("mBriefTime").textContent = LIVE ? "Datos FRED a " + LIVE.asOf.split("-").reverse().join("/") : "Actualizado " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+    if (LIVE) {
+      const g = LIVE.global, rc = g.regime === "RISK-ON" ? "up" : g.regime === "RISK-OFF" ? "down" : "flat";
+      $("mRegime").textContent = g.regime; $("mRegime").className = "regime " + rc;
+      $("mRegimeNote").textContent = g.macroBias;
+      $("mConv").innerHTML = g.conviction + '<small style="font-size:16px;color:var(--muted)"> / 100</small>'; $("mConvBar").style.width = g.conviction + "%";
+      $("mBrief").textContent = g.brief; $("mPrimary").textContent = g.primaryDriver; $("mWindow").textContent = g.riskWindow;
+      $("mBias").textContent = g.macroBias; $("mBias").className = rc;
+    }
     tickMacro();
+  }
+
+  /* ---------- Datos macro reales (/api/macro: FRED + Claude) ---------- */
+  let LIVE = null, liveTried = false;
+  async function loadLiveMacro() {
+    if (liveTried) return; liveTried = true;
+    try {
+      const r = await fetch("/api/macro");
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const j = await r.json();
+      if (!j.assets || !j.global) throw new Error("respuesta incompleta");
+      LIVE = j;
+      Object.entries(j.assets).forEach(([s, a]) => { if (ASSETS[s]) ASSETS[s] = { ...ASSETS[s], ...a }; });
+      const t = new Date(j.generatedAt).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+      $("mSource").textContent = "DATOS REALES · FRED + IA · " + t;
+      $("mSource").classList.add("live-src");
+      if (!$("view-macro").hidden) showMacro();
+    } catch (e) {
+      console.info("Macro en modo ejemplo:", e.message);
+    }
   }
 
   /* ---------- DIARIO ---------- */
@@ -445,7 +475,7 @@
   });
 
   /* ---------- Registro de vistas y temporizador ---------- */
-  window.KairosViews = { cal: renderCal, heat: renderHeat, macro: showMacro, journal: renderJournal, academy: renderAcademy };
+  window.KairosViews = { cal: renderCal, heat: renderHeat, macro: () => { showMacro(); loadLiveMacro(); }, journal: renderJournal, academy: renderAcademy };
   setInterval(() => {
     if (!$("view-macro").hidden) tickMacro();
   }, 1000);

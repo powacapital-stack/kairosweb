@@ -398,3 +398,4 @@ body::after { background: radial-gradient(45vmax 45vmax at 10% -10%, rgba(0, 240
 .asset-sym { font: 800 16px var(--f-display); letter-spacing: .04em; }
 .asset-tile b { font: 700 13px var(--f-data); letter-spacing: .1em; }
 .asset-tile .pill { justify-self: start; }
+.demo-tag.live-src { color: #22f5a5; border-color: #22f5a5; border-style: solid; }
