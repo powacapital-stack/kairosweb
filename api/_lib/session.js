@@ -1,18 +1,20 @@
 /* Sesiones de Kairos: cookies firmadas con HMAC, login con Whop (OAuth + PKCE) y comprobación de acceso.
-   Variables en Vercel:
-     SESSION_SECRET              cadena aleatoria larga para firmar las cookies (obligatoria)
-     WHOP_CLIENT_ID              ID de la app de Whop (app_…)
-     WHOP_CLIENT_SECRET          secreto de la app de Whop (opcional, se envía si existe)
-     WHOP_API_KEY                clave de la empresa en Whop (opcional; si falta se usa el token del usuario)
-     WHOP_PRODUCT_MEMBERSHIP     producto de la membresía de 77 €/mes (prod_…)
-     WHOP_PRODUCT_COURSE         producto del curso exclusivo de 299 € (prod_…) */
+   Variables en Vercel (secretas):
+     SESSION_SECRET   cadena aleatoria larga para firmar las cookies
+     WHOP_API_KEY     clave de la app "Kairos Web" en Whop (apik_…). Es también el secreto del cliente OAuth.
+   Los identificadores públicos de Whop están abajo (WHOP); se pueden cambiar con variables del mismo nombre. */
 
 const crypto = require("crypto");
 
 const SESSION_COOKIE = "kx_session";
 const OAUTH_COOKIE = "kx_oauth";
 const SESSION_HOURS = 12;
-const env = k => (process.env[k] || "").trim();
+const WHOP = {
+  WHOP_CLIENT_ID: "app_zHT0LV0rLU7Qpb",              // app "Kairos Web"
+  WHOP_PRODUCT_MEMBERSHIP: "prod_NLZPs1lvQhI2U",     // Kairos – Membresía (77 €/mes)
+  WHOP_PRODUCT_COURSE: "prod_ynrZy74vWNL0v",         // Kairos – Curso Exclusivo (299 €, pago único)
+};
+const env = k => (process.env[k] || WHOP[k] || "").trim();
 
 const b64url = buf => Buffer.from(buf).toString("base64url");
 const randomString = n => b64url(crypto.randomBytes(n));
@@ -72,16 +74,17 @@ const safeNext = n => (typeof n === "string" && /^\/(?!\/)[\w\-./#?=&%]*$/.test(
 
 const getSession = req => verify(readCookies(req)[SESSION_COOKIE]);
 
-// ¿El usuario tiene acceso a este producto de Whop?
+// ¿El usuario tiene acceso a este producto de Whop? Se pregunta con el token del propio usuario y, si falla, con la clave de la app.
 async function checkAccess(userId, productId, userToken) {
   if (!productId) return false;
-  const token = env("WHOP_API_KEY") || userToken;
-  const r = await fetch(`https://api.whop.com/api/v1/users/${encodeURIComponent(userId)}/access/${encodeURIComponent(productId)}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!r.ok) { console.error("[whop access]", productId, r.status, (await r.text()).slice(0, 200)); return false; }
-  const d = await r.json();
-  return d.has_access === true;
+  for (const token of [userToken, env("WHOP_API_KEY")].filter(Boolean)) {
+    const r = await fetch(`https://api.whop.com/api/v1/users/${encodeURIComponent(userId)}/access/${encodeURIComponent(productId)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (r.ok) return (await r.json()).has_access === true;
+    console.error("[whop access]", productId, r.status, (await r.text()).slice(0, 200));
+  }
+  return false;
 }
 
 module.exports = {

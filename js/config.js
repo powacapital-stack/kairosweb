@@ -10,7 +10,7 @@ window.KAIROS = {
   // Curso exclusivo (Academia): pago único con acceso de por vida.
   // Pega aquí el enlace de pago del producto del curso en Whop.
   coursePrice: 299,
-  checkoutCourse: "",
+  checkoutCourse: "https://whop.com/kairos-web-steel/kairos-curso-exclusivo",
 
   // Invitación al servidor de Discord (no caduca).
   discord: "https://discord.gg/TAtJn24562",

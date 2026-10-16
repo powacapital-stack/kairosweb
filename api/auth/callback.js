@@ -17,7 +17,8 @@ module.exports = async (req, res) => {
       grant_type: "authorization_code", code: q.code, redirect_uri: `${S.origin(req)}/api/auth/callback`,
       client_id: S.env("WHOP_CLIENT_ID"), code_verifier: pkce.v,
     };
-    if (S.env("WHOP_CLIENT_SECRET")) body.client_secret = S.env("WHOP_CLIENT_SECRET");
+    const secret = S.env("WHOP_CLIENT_SECRET") || S.env("WHOP_API_KEY");
+    if (secret) body.client_secret = secret;
     const t = await fetch("https://api.whop.com/oauth/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!t.ok) throw new Error(`token ${t.status}: ${(await t.text()).slice(0, 200)}`);
     const { access_token } = await t.json();
