@@ -35,7 +35,11 @@ async function fetchSeries(id, apiKey, fetchImpl = fetch) {
   const start = SERIES[id] === "m" ? daysAgo(800) : daysAgo(220);
   const url = `${FRED_URL}?series_id=${id}&api_key=${encodeURIComponent(apiKey)}&file_type=json&observation_start=${start}`;
   const r = await fetchImpl(url);
-  if (!r.ok) throw new Error(`FRED ${id}: HTTP ${r.status}`);
+  if (!r.ok) {
+    let msg = "";
+    try { msg = (await r.json()).error_message || ""; } catch {}
+    throw new Error(`FRED ${id}: HTTP ${r.status}${msg ? " · " + msg : ""}`);
+  }
   const j = await r.json();
   return (j.observations || [])
     .filter(o => o.value !== "." && o.value !== "")
@@ -50,7 +54,8 @@ async function fetchAll(apiKey, fetchImpl = fetch) {
   const res = await Promise.allSettled(ids.map(id => fetchSeries(id, apiKey, fetchImpl)));
   res.forEach((r, i) => { out[ids[i]] = r.status === "fulfilled" ? r.value : []; });
   const missing = ids.filter(id => out[id].length === 0);
-  return { data: out, missing };
+  const firstError = res.find(r => r.status === "rejected");
+  return { data: out, missing, error: firstError ? String(firstError.reason.message || firstError.reason) : null };
 }
 
 // ---------- Utilidades numéricas ----------

@@ -92,8 +92,8 @@ module.exports = async (req, res) => {
   const useAI = !!process.env.ANTHROPIC_API_KEY;
 
   try {
-    const { data, missing } = await fetchAll(fredKey);
-    if (!data.DGS10.length || !data.SP500.length) throw new Error("FRED no devolvió datos (revisa FRED_API_KEY).");
+    const { data, missing, error: fredError } = await fetchAll(fredKey.trim());
+    if (!data.DGS10.length || !data.SP500.length) throw new Error("FRED no devolvió datos" + (fredError ? ": " + fredError : " (revisa FRED_API_KEY)."));
     const f = computeFeatures(data);
 
     let ai, model = "reglas";
