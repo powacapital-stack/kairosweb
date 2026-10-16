@@ -1,0 +1,39 @@
+# Publicaciones automáticas de Kairos en Discord.
+#  - Sesgo macro de cada activo en #sesgo-del-dia: cada 4 horas.
+#  - Noticias de los activos en #alertas: cada hora.
+# Necesita el secreto KAIROS_CRON_SECRET en GitHub (Settings → Secrets and variables → Actions),
+# con el mismo valor que CRON_SECRET en Vercel.
+name: Discord Kairos
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"   # sesgo (UTC: 00, 04, 08, 12, 16, 20)
+    - cron: "7 * * * *"     # alertas (minuto 7 de cada hora)
+  workflow_dispatch:
+    inputs:
+      tarea:
+        description: "Qué publicar ahora"
+        type: choice
+        options: [ambas, sesgo, alertas]
+        default: ambas
+
+jobs:
+  sesgo:
+    if: github.event.schedule == '0 */4 * * *' || (github.event_name == 'workflow_dispatch' && inputs.tarea != 'alertas')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publicar sesgo macro
+        run: |
+          curl -fsS -m 120 -X POST \
+            -H "Authorization: Bearer ${{ secrets.KAIROS_CRON_SECRET }}" \
+            https://kairos-web-steel.vercel.app/api/discord-sesgo
+
+  alertas:
+    if: github.event.schedule == '7 * * * *' || (github.event_name == 'workflow_dispatch' && inputs.tarea != 'sesgo')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publicar noticias de la última hora
+        run: |
+          curl -fsS -m 120 -X POST \
+            -H "Authorization: Bearer ${{ secrets.KAIROS_CRON_SECRET }}" \
+            https://kairos-web-steel.vercel.app/api/discord-alertas
