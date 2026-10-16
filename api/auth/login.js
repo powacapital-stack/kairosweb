@@ -4,7 +4,7 @@ const S = require("../_lib/session");
 
 module.exports = (req, res) => {
   const clientId = S.env("WHOP_CLIENT_ID");
-  if (!S.env("SESSION_SECRET") || !S.env("WHOP_API_KEY")) return S.sendJson(res, 503, { error: "not_configured", message: "Faltan SESSION_SECRET o WHOP_API_KEY en Vercel." });
+  if (!S.env("SESSION_SECRET")) return S.sendJson(res, 503, { error: "not_configured", message: "Falta SESSION_SECRET en Vercel." });
 
   const pkce = { v: S.randomString(32), s: S.randomString(16), n: S.randomString(16), next: S.safeNext(S.query(req).next), exp: Date.now() + 10 * 60e3 };
   res.setHeader("Set-Cookie", S.cookie(req, S.OAUTH_COOKIE, S.sign(pkce), { maxAge: 600, path: "/api/auth" }));

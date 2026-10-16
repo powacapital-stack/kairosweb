@@ -1,7 +1,8 @@
 /* Sesiones de Kairos: cookies firmadas con HMAC, login con Whop (OAuth + PKCE) y comprobación de acceso.
    Variables en Vercel (secretas):
      SESSION_SECRET   cadena aleatoria larga para firmar las cookies
-     WHOP_API_KEY     clave de la app "Kairos Web" en Whop (apik_…). Es también el secreto del cliente OAuth.
+     WHOP_API_KEY     clave de la app "Kairos Web" en Whop (apik_…). Opcional: comprueba el acceso si falla el token del usuario.
+   La app de Whop está en modo OAuth público (PKCE), así que no hace falta secreto del cliente.
    Los identificadores públicos de Whop están abajo (WHOP); se pueden cambiar con variables del mismo nombre. */
 
 const crypto = require("crypto");
