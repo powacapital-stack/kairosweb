@@ -25,7 +25,7 @@
   tvWidget("tvTape", "ticker-tape", { symbols: tape.map(s => ({ proName: K.tv(s), title: s })), showSymbolLogo: false, displayMode: "adaptive" });
   tvWidget("tvHero", "mini-symbol-overview", {
     symbol: K.tv("USTEC"), width: "100%", height: "100%", dateRange: "1D", chartOnly: false, noTimeScale: false,
-    trendLineColor: "rgba(0, 240, 255, 1)", underLineColor: "rgba(0, 240, 255, 0.18)", underLineBottomColor: "rgba(112, 0, 255, 0)",
+    trendLineColor: "rgba(224, 165, 38, 1)", underLineColor: "rgba(224, 165, 38, 0.18)", underLineBottomColor: "rgba(123, 44, 191, 0)",
   });
 
   /* ---------- Enlaces de Discord (desde config.js) ---------- */
@@ -66,7 +66,7 @@
       const now = performance.now(); if (now - last < 35 || live > 40) return; last = now;
       const p = document.createElement("span"); p.className = "spark-dot";
       p.style.left = e.clientX + "px"; p.style.top = e.clientY + "px";
-      if (Math.random() > .5) { p.style.background = "#8b5cff"; p.style.boxShadow = "0 0 8px #8b5cff"; }
+      if (Math.random() > .5) { p.style.background = "#9d4edd"; p.style.boxShadow = "0 0 8px #9d4edd"; }
       document.body.appendChild(p); live++;
       const a = Math.random() * Math.PI * 2, d = 30 + Math.random() * 50;
       p.animate([{ transform: "translate(-50%,-50%) scale(1)", opacity: 1 }, { transform: `translate(${Math.cos(a) * d - 2}px, ${Math.sin(a) * d - 2}px) scale(0)`, opacity: 0 }],

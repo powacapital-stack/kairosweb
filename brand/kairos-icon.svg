@@ -1,24 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <defs>
     <radialGradient id="bg" cx="50%" cy="45%" r="70%">
-      <stop offset="0" stop-color="#101632"/>
-      <stop offset="0.55" stop-color="#080a16"/>
-      <stop offset="1" stop-color="#04050a"/>
+      <stop offset="0" stop-color="#1b1420"/>
+      <stop offset="0.55" stop-color="#0e0a0f"/>
+      <stop offset="1" stop-color="#070408"/>
     </radialGradient>
     <radialGradient id="glowC" cx="30%" cy="25%" r="55%">
-      <stop offset="0" stop-color="#00f0ff" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#00f0ff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#e0a526" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#e0a526" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="glowV" cx="75%" cy="80%" r="55%">
-      <stop offset="0" stop-color="#7000ff" stop-opacity="0.45"/>
-      <stop offset="1" stop-color="#7000ff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#7b2cbf" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#7b2cbf" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="stroke" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#00f0ff"/>
-      <stop offset="1" stop-color="#8b5cff"/>
+      <stop offset="0" stop-color="#e0a526"/>
+      <stop offset="0.55" stop-color="#e63946"/>
+      <stop offset="1" stop-color="#9d4edd"/>
     </linearGradient>
     <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
-      <path d="M64 0H0V64" fill="none" stroke="#8fb4ff" stroke-opacity="0.07" stroke-width="2"/>
+      <path d="M64 0H0V64" fill="none" stroke="#f5d27a" stroke-opacity="0.07" stroke-width="2"/>
     </pattern>
     <filter id="neon" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="1.2" result="b1"/>

@@ -8,11 +8,11 @@
 const { authorized, postWebhook, cetTime } = require("./_lib/discord");
 
 const FEEDS = [
-  { tag: "Nasdaq (MNQ · NQ · USTEC)", sym: "^IXIC", color: 0x00f0ff },
-  { tag: "S&P 500 (ES)", sym: "^GSPC", color: 0x00f0ff },
-  { tag: "Dow (MYM)", sym: "^DJI", color: 0x00f0ff },
+  { tag: "Nasdaq (MNQ · NQ · USTEC)", sym: "^IXIC", color: 0xe0a526 },
+  { tag: "S&P 500 (ES)", sym: "^GSPC", color: 0xe0a526 },
+  { tag: "Dow (MYM)", sym: "^DJI", color: 0xe0a526 },
   { tag: "Oro (GC)", sym: "GC=F", color: 0xf5c84c },
-  { tag: "Crudo (CL)", sym: "CL=F", color: 0x8b5cff },
+  { tag: "Crudo (CL)", sym: "CL=F", color: 0x9d4edd },
   { tag: "EUR/USD", sym: "EURUSD=X", color: 0x22f5a5 },
   { tag: "GBP/USD", sym: "GBPUSD=X", color: 0x22f5a5 },
   { tag: "USD/JPY", sym: "JPY=X", color: 0x22f5a5 },

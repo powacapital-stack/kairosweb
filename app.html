@@ -7,11 +7,12 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20261017e">
+<link rel="stylesheet" href="css/styles.css?v=20261018a">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="none" stroke="#00f0ff" stroke-width="2"/><path d="M9 23 L9 9 M9 16 L21 8 M13 14 L22 24" stroke="#00f0ff" stroke-width="2.6" stroke-linecap="round" fill="none"/></symbol>
+  <linearGradient id="kmark" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e0a526"/><stop offset=".55" stop-color="#e63946"/><stop offset="1" stop-color="#9d4edd"/></linearGradient>
+  <symbol id="mark" viewBox="0 0 32 32"><rect x="1" y="1" width="30" height="30" rx="7" fill="none" stroke="url(#kmark)" stroke-width="2"/><path d="M9 23 L9 9 M9 16 L21 8 M13 14 L22 24" stroke="url(#kmark)" stroke-width="2.6" stroke-linecap="round" fill="none"/></symbol>
 </svg>
 
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
@@ -77,10 +78,10 @@
         <div class="card span-4" style="justify-items:center">
           <span class="label" style="justify-self:start">Confianza del sesgo</span>
           <svg class="gauge" viewBox="0 0 200 120" role="img" aria-label="Indicador de confianza">
-            <path d="M20 105 A80 80 0 0 1 180 105" fill="none" stroke="#1d2742" stroke-width="14" stroke-linecap="round"/>
+            <path d="M20 105 A80 80 0 0 1 180 105" fill="none" stroke="#2b2230" stroke-width="14" stroke-linecap="round"/>
             <path id="gArc" d="M20 105 A80 80 0 0 1 180 105" fill="none" stroke="#22f5a5" stroke-width="14" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>
             <text x="100" y="92" text-anchor="middle" font-size="34" font-weight="700" id="gVal">0</text>
-            <text x="100" y="112" text-anchor="middle" font-size="11" fill="#8b93ad" style="fill:#8b93ad">/ 100</text>
+            <text x="100" y="112" text-anchor="middle" font-size="11" fill="#a59aa3" style="fill:#a59aa3">/ 100</text>
           </svg>
           <b class="mono" id="gLabel">—</b>
         </div>
@@ -117,8 +118,8 @@
         <div class="card span-8">
           <span class="label">Sesiones (hora de Madrid)</span>
           <div class="sessions" id="sessions">
-            <div class="sess" style="left:0;width:33.3%;background:#3a5a8c55">Asia</div>
-            <div class="sess" style="left:37.5%;width:22.9%;background:#00f0ff33">Londres</div>
+            <div class="sess" style="left:0;width:33.3%;background:#5a4a6e55">Asia</div>
+            <div class="sess" style="left:37.5%;width:22.9%;background:#e0a52633">Londres</div>
             <div class="sess" style="left:64.6%;width:27.1%;background:#22f5a533">Nueva York</div>
             <div class="now-line" id="nowLine"></div>
           </div>
@@ -284,10 +285,10 @@
   </div>
 </div>
 
-<script src="js/config.js?v=20261017e"></script>
-<script src="js/auth.js?v=20261017e"></script>
-<script src="js/tv.js?v=20261017e"></script>
-<script src="js/app.js?v=20261017e"></script>
-<script src="js/sections.js?v=20261017e"></script>
+<script src="js/config.js?v=20261018a"></script>
+<script src="js/auth.js?v=20261018a"></script>
+<script src="js/tv.js?v=20261018a"></script>
+<script src="js/app.js?v=20261018a"></script>
+<script src="js/sections.js?v=20261018a"></script>
 </body>
 </html>

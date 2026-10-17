@@ -77,7 +77,7 @@
       symbol: K.tv(focus), interval: chartTf, timezone: "Europe/Madrid", style: "1",
       autosize: true, allow_symbol_change: false, hide_top_toolbar: true, hide_side_toolbar: true, hide_legend: false,
       withdateranges: false, save_image: false, calendar: false, details: false, hotlist: false,
-      studies: ["STD;VWAP"], backgroundColor: "rgba(12, 16, 32, 1)", gridColor: "rgba(29, 39, 66, 0.35)",
+      studies: ["STD;VWAP"], backgroundColor: "rgba(20, 14, 22, 1)", gridColor: "rgba(46, 34, 50, 0.35)",
     });
   }
   document.getElementById("chartTf").addEventListener("click", e => {
@@ -101,7 +101,7 @@
     document.getElementById("align").textContent = (conf > 60 ? 4 : conf > 35 ? 3 : 2) + "/4 marcos";
     const d = document.getElementById("deltaTot"); d.textContent = sign(m.delta) + m.delta; d.className = m.delta >= 0 ? "up" : "down";
     document.getElementById("updated").textContent = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
-    const col = conf >= 60 ? "#22f5a5" : conf >= 35 ? "#c9b458" : "#ff4d7d";
+    const col = conf >= 60 ? "#22f5a5" : conf >= 35 ? "#c4b5e0" : "#ff4d7d";
     const arc = document.getElementById("gArc"); arc.setAttribute("stroke-dasharray", conf + " 100"); arc.setAttribute("stroke", col);
     document.getElementById("gVal").textContent = conf;
     const gl = document.getElementById("gLabel"); gl.textContent = conf >= 60 ? "FUERTE" : conf >= 35 ? "MODERADA" : "DÉBIL"; gl.style.color = col;
