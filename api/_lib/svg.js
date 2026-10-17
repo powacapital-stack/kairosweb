@@ -1,6 +1,6 @@
 /* Piezas para dibujar los diagramas de la Academia en SVG con los colores de Kairos. */
 
-const C = { cy: "#e0a526", vi: "#9d4edd", up: "#22f5a5", dn: "#ff4d7d", mu: "#a59aa3", tx: "#f3ece4", ln: "#2b2230", fl: "#c4b5e0", bg: "#110b12" };
+const C = { cy: "#d4af37", vi: "#f3e3b0", up: "#22f5a5", dn: "#ff4d7d", mu: "#a39e93", tx: "#f4f1ea", ln: "#2a2722", fl: "#a8a29e", bg: "#0e0e10" };
 const W = 640;
 
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -10,7 +10,7 @@ function svg(body, h = 300, title = "") {
   let grid = "";
   for (let y = 30; y < h; y += 40) grid += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="${C.ln}" stroke-opacity=".45"/>`;
   return `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(title)}" font-family="Space Grotesk, Segoe UI, sans-serif">`
-    + `<defs><linearGradient id="kg" x1="0" x2="1"><stop offset="0" stop-color="${C.cy}"/><stop offset=".55" stop-color="#e63946"/><stop offset="1" stop-color="${C.vi}"/></linearGradient></defs>`
+    + `<defs><linearGradient id="kg" x1="0" x2="1"><stop offset="0" stop-color="${C.cy}"/><stop offset=".55" stop-color="#e8c766"/><stop offset="1" stop-color="${C.vi}"/></linearGradient></defs>`
     + `<rect width="${W}" height="${h}" rx="14" fill="${C.bg}"/>${grid}${body}</svg>`;
 }
 

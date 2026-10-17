@@ -4,8 +4,8 @@ const { C, text, rect, line, circle, candles, zone, level } = require("../api/_l
 
 const W = 640, H = 220;
 const frame = (n, name, art) => `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Space Grotesk, Segoe UI, sans-serif">
-<defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#160f1c"/><stop offset="1" stop-color="#1f0b24"/></linearGradient>
-<linearGradient id="kg" x1="0" x2="1"><stop offset="0" stop-color="${C.cy}"/><stop offset=".55" stop-color="#e63946"/><stop offset="1" stop-color="${C.vi}"/></linearGradient>
+<defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#141310"/><stop offset="1" stop-color="#1a160c"/></linearGradient>
+<linearGradient id="kg" x1="0" x2="1"><stop offset="0" stop-color="${C.cy}"/><stop offset=".55" stop-color="#e8c766"/><stop offset="1" stop-color="${C.vi}"/></linearGradient>
 <radialGradient id="glow" cx=".75" cy=".4" r=".6"><stop offset="0" stop-color="${C.cy}" stop-opacity=".22"/><stop offset="1" stop-color="${C.cy}" stop-opacity="0"/></radialGradient></defs>
 <rect width="${W}" height="${H}" fill="url(#g)"/><rect width="${W}" height="${H}" fill="url(#glow)"/>
 ${art}
@@ -41,7 +41,7 @@ const arts = [
   (() => { // Operaciones reales: tres capturas apiladas con marcas de entrada y objetivo
     let s = "";
     [[330, 40, -6], [380, 56, 0], [430, 72, 6]].forEach(([x, y, r], i) => {
-      s += `<g transform="rotate(${r} ${x + 90} ${y + 60})">` + rect(x, y, 180, 120, "#1a1018", { stroke: i === 2 ? C.cy : C.ln, rx: 8 });
+      s += `<g transform="rotate(${r} ${x + 90} ${y + 60})">` + rect(x, y, 180, 120, "#16140f", { stroke: i === 2 ? C.cy : C.ln, rx: 8 });
       const ch = candles([20, 22, 21, 25, 24, 28, 27, 31, 30, 34], { x0: x + 8, x1: x + 172, y0: y + 12, y1: y + 108 });
       s += ch.svg + (i === 2 ? line(x + 8, ch.y(24), x + 172, ch.y(24), C.cy, { dash: "4 3" }) + line(x + 8, ch.y(33), x + 172, ch.y(33), C.up, { dash: "4 3" }) : "") + "</g>";
     });

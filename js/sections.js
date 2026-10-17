@@ -193,7 +193,7 @@
     const X = i => i / (n - 1) * W, Y = y => 4 + (mx - y) / sp * (H - 8);
     const line = pts2.map((y, i) => `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(" "), col = a.flow[1] >= 0 ? "#22f5a5" : "#ff4d7d";
     return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Delta acumulado">
-      <line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="#a59aa3" stroke-dasharray="3 3"/>
+      <line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="#a39e93" stroke-dasharray="3 3"/>
       <polygon points="0,${Y(0)} ${line} ${W},${Y(0)}" fill="${col}" fill-opacity=".15"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2"/>
       <circle cx="${X(n - 1)}" cy="${Y(pts2[n - 1])}" r="3.5" fill="${col}"/></svg>`;
   }
@@ -267,7 +267,7 @@
     while (days.length < 7) { if (d.getDay() % 6 !== 0) days.unshift(new Date(d)); d.setDate(d.getDate() - 1); }
     const reg = LIVE ? LIVE.global.regimeHistory.map(r => r.regime) : ["Risk-on", "Neutral", "Neutral", "Risk-off", "Risk-off", "Neutral", "Risk-off"];
     if (LIVE) { days.length = 0; LIVE.global.regimeHistory.forEach(r => days.push(new Date(r.date + "T12:00:00"))); }
-    const rc = { "Risk-on": "var(--up-dim)", "Neutral": "#c4b5e024", "Risk-off": "var(--down-dim)" };
+    const rc = { "Risk-on": "var(--up-dim)", "Neutral": "#a8a29e24", "Risk-off": "var(--down-dim)" };
     $("mHist").innerHTML = days.map((x, i) => `<div><span style="background:${rc[reg[i]]}">${reg[i].replace("Risk-", "").toUpperCase()}</span>${i === 6 ? "Hoy" : cap(x.toLocaleDateString("es-ES", { weekday: "short" }).replace(".", ""))}</div>`).join("");
     const drv = LIVE ? LIVE.global.scores.map(x => [x.name, x.v]) : [["Apetito de riesgo", -38], ["Dólar (DXY)", 55], ["Bono 10 años", 62], ["Volatilidad (VIX)", 30], ["Crédito", -15]];
     $("mDrivers").innerHTML = drv.map(([n, v]) => `<div class="bar-row"><span>${n}</span><div class="track"><i style="left:${v >= 0 ? 50 : 50 + v / 2}%;width:${Math.abs(v) / 2}%;background:${v >= 0 ? "var(--up)" : "var(--down)"}"></i><i style="left:50%;width:1px;background:var(--muted)"></i></div><span class="mono ${v >= 0 ? "up" : "down"}" style="text-align:right">${v > 0 ? "+" : ""}${v}</span></div>`).join("");
@@ -283,7 +283,7 @@
     const C = LIVE ? LIVE.global.correlation.matrix.map(r => r.map(v => v == null ? 0 : v)) : [[1, .94, -.12, -.48, .15, -.56], [.94, 1, -.05, -.41, .22, -.49], [-.12, -.05, 1, -.62, .18, -.35], [-.48, -.41, -.62, 1, -.08, .58], [.15, .22, .18, -.08, 1, .12], [-.56, -.49, -.35, .58, .12, 1]];
     $("mCorr").style.gridTemplateColumns = `48px repeat(${A.length}, minmax(44px, 1fr))`;
     $("mCorr").innerHTML = "<div></div>" + A.map(a => `<div class="label">${a}</div>`).join("") +
-      A.map((a, i) => `<div class="label">${a}</div>` + C[i].map(v => `<div style="background:color-mix(in srgb, ${v >= 0 ? "#22f5a5" : "#ff4d7d"} ${(Math.abs(v) * 70).toFixed(0)}%, #1b1420)">${v.toFixed(2).replace(".", ",")}</div>`).join("")).join("");
+      A.map((a, i) => `<div class="label">${a}</div>` + C[i].map(v => `<div style="background:color-mix(in srgb, ${v >= 0 ? "#22f5a5" : "#ff4d7d"} ${(Math.abs(v) * 70).toFixed(0)}%, #18181b)">${v.toFixed(2).replace(".", ",")}</div>`).join("")).join("");
     $("mBriefTime").textContent = LIVE ? "Datos FRED a " + LIVE.asOf.split("-").reverse().join("/") : "Actualizado " + new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
     if (LIVE) {
       const g = LIVE.global, rc = g.regime === "RISK-ON" ? "up" : g.regime === "RISK-OFF" ? "down" : "flat";
@@ -365,8 +365,8 @@
       const line = curve.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(" ");
       const end = curve.at(-1), col = end >= 0 ? "#22f5a5" : "#ff4d7d";
       $("jCurve").innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="height:auto" role="img" aria-label="Curva de capital">
-        ${ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="#2b2230" stroke-width="1"/><text x="${L - 6}" y="${Y(t) + 3}" text-anchor="end">${Math.round(t)}</text>`).join("")}
-        <line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="#a59aa3" stroke-dasharray="3 3" stroke-width="1"/>
+        ${ticks.map(t => `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="#2a2722" stroke-width="1"/><text x="${L - 6}" y="${Y(t) + 3}" text-anchor="end">${Math.round(t)}</text>`).join("")}
+        <line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" stroke="#a39e93" stroke-dasharray="3 3" stroke-width="1"/>
         <polygon points="${X(0)},${Y(0)} ${line} ${X(curve.length - 1)},${Y(0)}" fill="${col}" fill-opacity=".14"/>
         <polyline points="${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/>
         <circle cx="${X(curve.length - 1)}" cy="${Y(end)}" r="4" fill="${col}"/>
