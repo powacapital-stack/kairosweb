@@ -6,34 +6,9 @@
    Fuente: titulares de Yahoo Finance por activo (en inglés). */
 
 const { authorized, postWebhook, cetTime } = require("./_lib/discord");
+const { collectNews } = require("./_lib/news");
 
-const FEEDS = [
-  { tag: "Nasdaq (MNQ · NQ · USTEC)", sym: "^IXIC", color: 0xd4af37 },
-  { tag: "S&P 500 (ES)", sym: "^GSPC", color: 0xd4af37 },
-  { tag: "Dow (MYM)", sym: "^DJI", color: 0xd4af37 },
-  { tag: "Oro (GC)", sym: "GC=F", color: 0xf5c84c },
-  { tag: "Crudo (CL)", sym: "CL=F", color: 0xf3e3b0 },
-  { tag: "EUR/USD", sym: "EURUSD=X", color: 0x22f5a5 },
-  { tag: "GBP/USD", sym: "GBPUSD=X", color: 0x22f5a5 },
-  { tag: "USD/JPY", sym: "JPY=X", color: 0x22f5a5 },
-];
 const MAX_POSTS = 20;
-// Titulares de relleno que no aportan a un trader de índices, oro, crudo o forex
-const NOISE = /\$[\d,.]+\s*(investment|invested)|stocks? to buy|should you buy|buy (now|today)|millionaire|retire(ment)?|dividend stock|passive income|forever stock|motley fool|zacks rank|is it too late|could make you rich/i;
-
-const decode = s => s.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/<[^>]+>/g, "").trim();
-const tag = (xml, t) => { const m = xml.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)); return m ? decode(m[1]) : ""; };
-
-async function readFeed(f) {
-  const url = `https://feeds.finance.yahoo.com/rss/2.0/headline?s=${encodeURIComponent(f.sym)}&region=US&lang=en-US`;
-  const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Kairos alertas)" } });
-  if (!r.ok) throw new Error(`Yahoo ${f.sym}: ${r.status}`);
-  const xml = await r.text();
-  return [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(m => ({
-    title: tag(m[1], "title"), link: tag(m[1], "link"), date: new Date(tag(m[1], "pubDate")),
-    summary: tag(m[1], "description"), tags: [f.tag], color: f.color,
-  })).filter(i => i.title && i.link && !isNaN(i.date) && !NOISE.test(i.title));
-}
 
 module.exports = async (req, res) => {
   if (!authorized(req)) return res.status(401).json({ error: "unauthorized" });
@@ -46,17 +21,8 @@ module.exports = async (req, res) => {
   const start = new Date(end.getTime() - hours * 3600e3);
 
   try {
-    const results = await Promise.allSettled(FEEDS.map(readFeed));
-    const byLink = new Map();
-    results.forEach(r => {
-      if (r.status !== "fulfilled") return;
-      for (const it of r.value) {
-        if (it.date < start || it.date >= end) continue;
-        const prev = byLink.get(it.link);
-        if (prev) { if (!prev.tags.includes(it.tags[0])) prev.tags.push(it.tags[0]); } else byLink.set(it.link, it);
-      }
-    });
-    const items = [...byLink.values()].sort((a, b) => a.date - b.date).slice(-MAX_POSTS);
+    const { items: all, feedsFailed: failed } = await collectNews(start, end);
+    const items = all.slice(-MAX_POSTS);
     if (!items.length) return res.status(200).json({ ok: true, posted: 0, window: [start, end] });
 
     // Discord admite 10 embeds por mensaje
@@ -70,7 +36,6 @@ module.exports = async (req, res) => {
         })),
       });
     }
-    const failed = results.filter(r => r.status === "rejected").length;
     return res.status(200).json({ ok: true, posted: items.length, feedsFailed: failed });
   } catch (err) {
     console.error("[api/discord-alertas]", err);

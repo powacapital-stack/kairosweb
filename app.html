@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20261018b">
+<link rel="stylesheet" href="css/styles.css?v=20261018c">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -30,6 +30,7 @@
     <a class="logo" href="index.html"><svg class="logo-mark"><use href="#mark"/></svg>KAIROS</a>
     <nav aria-label="Aplicación" id="sideNav">
       <div class="group label">Trading</div>
+      <button class="side-link" data-view="sesion">Sesión del día <span class="badge">NUEVO</span></button>
       <button class="side-link active" data-view="desk">Sala de Mando</button>
       <button class="side-link" data-view="cal">Calendario</button>
       <button class="side-link" data-view="heat">Mapa de calor</button>
@@ -257,6 +258,19 @@
       <div class="tbl-wrap"><table class="tbl" id="jTable"></table></div>
     </div>
 
+    <!-- SESIÓN DEL DÍA: briefing → planificación → ejecución (js/sesion.js) -->
+    <div class="content" id="view-sesion" hidden>
+      <div class="view-head">
+        <div><span class="label">Sesión del día · <span id="ssDate"></span></span><h2>Prepara tu sesión</h2><p>Tres pasos antes de operar: entiende qué pasa en el mundo, define tu plan y ejecuta solo lo que cumpla tus reglas. Tus datos se guardan en este navegador.</p></div>
+        <div class="seg ss-steps" id="ssSteps" role="tablist">
+          <button data-step="1" aria-pressed="true">1 · Briefing</button><button data-step="2" aria-pressed="false">2 · Planificación</button><button data-step="3" aria-pressed="false">3 · Ejecución</button>
+        </div>
+      </div>
+      <div id="ssStep1"></div>
+      <div id="ssStep2" hidden></div>
+      <div id="ssStep3" hidden></div>
+    </div>
+
     <!-- ACADEMIA -->
     <div class="content" id="view-academy" hidden>
       <div class="view-head">
@@ -285,10 +299,11 @@
   </div>
 </div>
 
-<script src="js/config.js?v=20261018b"></script>
-<script src="js/auth.js?v=20261018b"></script>
-<script src="js/tv.js?v=20261018b"></script>
-<script src="js/app.js?v=20261018b"></script>
-<script src="js/sections.js?v=20261018b"></script>
+<script src="js/config.js?v=20261018c"></script>
+<script src="js/auth.js?v=20261018c"></script>
+<script src="js/tv.js?v=20261018c"></script>
+<script src="js/app.js?v=20261018c"></script>
+<script src="js/sections.js?v=20261018c"></script>
+<script src="js/sesion.js?v=20261018c"></script>
 </body>
 </html>
