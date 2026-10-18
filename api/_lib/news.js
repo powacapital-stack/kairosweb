@@ -71,10 +71,13 @@ const madridDay = d => d.toLocaleDateString("en-CA", { timeZone: "Europe/Madrid"
 
 // Devuelve { today: eventos de hoy, next: próximos eventos de alto impacto de la semana }
 async function todayAgenda(now = new Date()) {
-  const r = await fetch("https://nfs.faireconomy.media/ff_calendar_thisweek.json", { headers: { "User-Agent": "Mozilla/5.0 (Kairos)" } });
-  if (!r.ok) throw new Error(`Agenda: ${r.status}`);
+  // Semana actual y siguiente: el fin de semana el archivo "thisweek" aún es la semana que termina
+  const [cur, nxt] = await Promise.allSettled(["thisweek", "nextweek"].map(w =>
+    fetch(`https://nfs.faireconomy.media/ff_calendar_${w}.json`, { headers: { "User-Agent": "Mozilla/5.0 (Kairos)" } })
+      .then(r => { if (!r.ok) throw new Error(`Agenda: ${r.status}`); return r.json(); })));
+  if (cur.status === "rejected" && nxt.status === "rejected") throw cur.reason;
   const today = madridDay(now);
-  const all = (await r.json())
+  const all = [...(cur.value || []), ...(nxt.value || [])]
     .filter(e => (e.impact === "High" || e.impact === "Medium") && COUNTRY_ASSETS[e.country])
     .map(e => ({ ...e, d: new Date(e.date) }))
     .filter(e => !isNaN(e.d))
