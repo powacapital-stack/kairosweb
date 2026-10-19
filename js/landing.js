@@ -30,6 +30,7 @@
 
   /* ---------- Enlaces de Discord (desde config.js) ---------- */
   if (K.discord) document.querySelectorAll("[data-discord]").forEach(a => { a.href = K.discord; });
+  if (K.instagram) document.querySelectorAll("[data-instagram]").forEach(a => { a.href = K.instagram; });
   if (K.checkout) document.querySelectorAll("[data-checkout]").forEach(a => { a.href = K.checkout; });
   if (K.checkoutCourse) document.querySelectorAll("[data-checkout-course]").forEach(a => { a.href = K.checkoutCourse; });
 
