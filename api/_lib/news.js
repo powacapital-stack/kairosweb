@@ -4,11 +4,11 @@
    Lo usan /api/discord-alertas (noticias de la última hora) y /api/sesion (briefing del día). */
 
 const FEEDS = [
-  { tag: "Nasdaq (MNQ · NQ · USTEC)", sym: "^IXIC", color: 0xd4af37, assets: ["MNQ", "NQ", "USTEC"] },
-  { tag: "S&P 500 (ES)", sym: "^GSPC", color: 0xd4af37, assets: ["ES"] },
-  { tag: "Dow (MYM)", sym: "^DJI", color: 0xd4af37, assets: ["MYM"] },
+  { tag: "Nasdaq (MNQ · NQ · USTEC)", sym: "^IXIC", color: 0x00f0ff, assets: ["MNQ", "NQ", "USTEC"] },
+  { tag: "S&P 500 (ES)", sym: "^GSPC", color: 0x00f0ff, assets: ["ES"] },
+  { tag: "Dow (MYM)", sym: "^DJI", color: 0x00f0ff, assets: ["MYM"] },
   { tag: "Oro (GC)", sym: "GC=F", color: 0xf5c84c, assets: ["GC"] },
-  { tag: "Crudo (CL)", sym: "CL=F", color: 0xf3e3b0, assets: ["CL"] },
+  { tag: "Crudo (CL)", sym: "CL=F", color: 0x8b5cff, assets: ["CL"] },
   { tag: "EUR/USD", sym: "EURUSD=X", color: 0x22f5a5, assets: ["EUR/USD"] },
   { tag: "GBP/USD", sym: "GBPUSD=X", color: 0x22f5a5, assets: ["GBP/USD"] },
   { tag: "USD/JPY", sym: "JPY=X", color: 0x22f5a5, assets: ["USD/JPY"] },

@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
       embeds: [{
         title: `Sesgo macro Kairos · ${cetTime(new Date())} CET`,
         url: "https://kairos-web-steel.vercel.app/app.html#macro",
-        color: COLOR[g.regime] || 0xd4af37,
+        color: COLOR[g.regime] || 0x00f0ff,
         description: `**Régimen global: ${g.regime}** · convicción ${g.conviction}/100 · ${g.macroBias}\n${g.brief}`.slice(0, 4096),
         fields,
         footer: { text: `Datos FRED a ${m.asOf} · Información, no asesoramiento financiero` },
