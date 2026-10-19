@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<link rel="stylesheet" href="css/styles.css?v=20261019a">
+<link rel="stylesheet" href="css/styles.css?v=20261019c">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -59,78 +59,86 @@
       <div class="clocks" id="clocks"></div>
     </div>
 
-    <div class="content" id="desk">
-      <div class="grid">
-        <div class="card span-8 bias-card" id="biasCard">
-          <div class="card-head"><span class="label">Sesgo direccional · <span id="biasSym">MNQ</span></span><span class="demo-tag">DATOS DE EJEMPLO</span></div>
+    <div class="content desk2" id="desk">
+      <!-- Selector de instrumentos -->
+      <div class="d2-markets chips" id="markets" role="group" aria-label="Mercados"></div>
+
+      <!-- Banda de control: sesgo · confianza · lectura · plan de juego -->
+      <section class="d2-hud" id="biasCard">
+        <div class="d2-cell d2-bias">
+          <div class="d2-cap"><span class="label">Sesgo direccional · <span id="biasSym">MNQ</span></span><span class="demo-tag">DATOS DE EJEMPLO</span></div>
           <div class="bias is-up" id="bias">
             <div>
               <div class="bias-word" id="biasWord">ALCISTA</div>
               <div class="bias-sub" id="biasSub">Domina la presión compradora</div>
             </div>
           </div>
-          <div class="meta-row">
-            <div><span class="label">Condición</span><b id="cond">En tendencia</b></div>
-            <div><span class="label">Alineación</span><b id="align">3/4 marcos</b></div>
-            <div><span class="label">Delta sesión</span><b id="deltaTot">+412</b></div>
-            <div><span class="label">Actualizado</span><b id="updated">—</b></div>
-          </div>
         </div>
-        <div class="card span-4" style="justify-items:center">
-          <span class="label" style="justify-self:start">Confianza del sesgo</span>
-          <svg class="gauge" viewBox="0 0 200 120" role="img" aria-label="Indicador de confianza">
-            <path d="M20 105 A80 80 0 0 1 180 105" fill="none" stroke="#1d2742" stroke-width="14" stroke-linecap="round"/>
-            <path id="gArc" d="M20 105 A80 80 0 0 1 180 105" fill="none" stroke="#22f5a5" stroke-width="14" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100"/>
-            <text x="100" y="92" text-anchor="middle" font-size="34" font-weight="700" id="gVal">0</text>
-            <text x="100" y="112" text-anchor="middle" font-size="11" fill="#8b93ad" style="fill:#8b93ad">/ 100</text>
+        <div class="d2-cell d2-ring">
+          <svg class="ring" viewBox="0 0 120 120" role="img" aria-label="Indicador de confianza">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#1d2742" stroke-width="10"/>
+            <circle id="gArc" cx="60" cy="60" r="50" fill="none" stroke="#22f5a5" stroke-width="10" stroke-linecap="round" pathLength="100" stroke-dasharray="0 100" transform="rotate(-90 60 60)"/>
+            <text x="60" y="64" text-anchor="middle" font-size="30" font-weight="700" id="gVal">0</text>
+            <text x="60" y="84" text-anchor="middle" font-size="10" style="fill:#8b93ad">/ 100</text>
           </svg>
-          <b class="mono" id="gLabel">—</b>
+          <div><span class="label">Confianza</span><b class="mono" id="gLabel">—</b></div>
         </div>
-
-        <div class="span-12 chips" id="markets" role="group" aria-label="Mercados"></div>
-
-        <div class="span-12 quotes" id="quotes"></div>
-
-        <div class="card span-12">
-          <div class="chart-head"><span class="label"><span class="dot"></span>&nbsp; Gráfico en vivo · <span id="chartSym">MNQ</span></span>
-            <div class="seg" id="chartTf"><button aria-pressed="false" data-v="1">1m</button><button aria-pressed="true" data-v="5">5m</button><button aria-pressed="false" data-v="15">15m</button><button aria-pressed="false" data-v="60">1H</button><button aria-pressed="false" data-v="240">4H</button><button aria-pressed="false" data-v="D">1D</button></div></div>
-          <div class="tv-chart" id="tvChart"></div>
+        <div class="d2-cell d2-meta">
+          <div><span class="label">Condición</span><b id="cond">En tendencia</b></div>
+          <div><span class="label">Alineación</span><b id="align">3/4 marcos</b></div>
+          <div><span class="label">Delta sesión</span><b id="deltaTot">+412</b></div>
+          <div><span class="label">Actualizado</span><b id="updated">—</b></div>
         </div>
-
-        <div class="card span-7">
-          <div class="card-head"><span class="label">Briefing privado</span><span class="time mono" id="briefTime" style="color:var(--brass);font-size:12px">—</span></div>
-          <div class="brief" id="brief"></div>
-        </div>
-        <div class="card span-5">
-          <div class="card-head"><span class="label">Delta · buckets de 5 min</span><b class="mono" id="deltaNow">—</b></div>
-          <div class="buckets" id="buckets"></div>
-          <div class="bk-labels" id="bkLabels"></div>
-        </div>
-
-        <div class="card span-6">
-          <div class="card-head"><span class="label">Niveles clave</span><span class="label">VWAP <b class="mono" id="vwap" style="color:var(--text)">—</b></span></div>
-          <div class="ladder" id="ladder"></div>
-        </div>
-        <div class="card span-6">
-          <div class="card-head"><span class="label">Perfil de volumen</span><span class="label">POC en ámbar</span></div>
-          <div class="profile" id="profile"></div>
-        </div>
-
-        <div class="card span-8">
-          <span class="label">Sesiones (hora de Madrid)</span>
-          <div class="sessions" id="sessions">
-            <div class="sess" style="left:0;width:33.3%;background:#3a5a8c55">Asia</div>
-            <div class="sess" style="left:37.5%;width:22.9%;background:#00f0ff33">Londres</div>
-            <div class="sess" style="left:64.6%;width:27.1%;background:#22f5a533">Nueva York</div>
-            <div class="now-line" id="nowLine"></div>
-          </div>
-          <div class="sess-scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
-        </div>
-        <div class="card span-4">
+        <div class="d2-cell d2-plan">
           <span class="label">Plan de juego</span>
           <div class="advice"><b id="advice" class="up">BUSCAR COMPRAS</b></div>
-          <p style="margin:0;color:var(--muted);font-size:14px" id="adviceTxt"></p>
+          <p id="adviceTxt"></p>
         </div>
+      </section>
+
+      <div class="d2-main">
+        <div class="d2-left">
+          <div class="card d2-chart">
+            <div class="chart-head"><span class="label"><span class="dot"></span>&nbsp; Gráfico en vivo · <span id="chartSym">MNQ</span></span>
+              <div class="seg" id="chartTf"><button aria-pressed="false" data-v="1">1m</button><button aria-pressed="true" data-v="5">5m</button><button aria-pressed="false" data-v="15">15m</button><button aria-pressed="false" data-v="60">1H</button><button aria-pressed="false" data-v="240">4H</button><button aria-pressed="false" data-v="D">1D</button></div></div>
+            <div class="tv-chart" id="tvChart"></div>
+          </div>
+
+          <div class="quotes d2-quotes" id="quotes"></div>
+
+          <div class="card d2-levels">
+            <div>
+              <div class="card-head"><span class="label">Niveles clave</span><span class="label">VWAP <b class="mono" id="vwap" style="color:var(--text)">—</b></span></div>
+              <div class="ladder" id="ladder"></div>
+            </div>
+            <div>
+              <div class="card-head"><span class="label">Perfil de volumen</span><span class="label">POC resaltado</span></div>
+              <div class="profile" id="profile"></div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="d2-rail">
+          <div class="card d2-brief">
+            <div class="card-head"><span class="label">Briefing privado</span><span class="time mono" id="briefTime" style="color:var(--brass);font-size:12px">—</span></div>
+            <div class="brief" id="brief"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="label">Delta · buckets de 5 min</span><b class="mono" id="deltaNow">—</b></div>
+            <div class="buckets" id="buckets"></div>
+            <div class="bk-labels" id="bkLabels"></div>
+          </div>
+          <div class="card">
+            <span class="label">Sesiones (hora de Madrid)</span>
+            <div class="sessions" id="sessions">
+              <div class="sess" style="left:0;width:33.3%;background:#3a5a8c55">Asia</div>
+              <div class="sess" style="left:37.5%;width:22.9%;background:#00f0ff33">Londres</div>
+              <div class="sess" style="left:64.6%;width:27.1%;background:#22f5a533">NY</div>
+              <div class="now-line" id="nowLine"></div>
+            </div>
+            <div class="sess-scale"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>
+          </div>
+        </aside>
       </div>
     </div>
 
@@ -175,50 +183,60 @@
         <button aria-pressed="true" data-v="global">Global</button><button aria-pressed="false" data-v="MNQ">MNQ</button><button aria-pressed="false" data-v="NQ">NQ</button><button aria-pressed="false" data-v="USTEC">USTEC</button><button aria-pressed="false" data-v="MYM">MYM</button><button aria-pressed="false" data-v="ES">ES</button><button aria-pressed="false" data-v="GC">Oro (GC)</button><button aria-pressed="false" data-v="CL">CL</button><button aria-pressed="false" data-v="EUR/USD">EUR/USD</button><button aria-pressed="false" data-v="GBP/USD">GBP/USD</button><button aria-pressed="false" data-v="USD/JPY">USD/JPY</button>
       </div></div>
       <div class="grid" id="mAsset" hidden></div>
-      <div class="grid" id="mGlobal">
-        <div class="span-12" id="mAssetsGrid"></div>
-        <div class="span-12 macro-quotes" id="tvMacroQuotes"></div>
-        <div class="card span-4"><span class="label">Régimen global</span><div class="regime down" id="mRegime">RISK-OFF</div><small style="color:var(--muted)" id="mRegimeNote">Postura defensiva: rentabilidades al alza y dólar fuerte.</small></div>
-        <div class="card span-4"><span class="label">Convicción macro</span><div class="regime" id="mConv" style="color:var(--brass)">42<small style="font-size:16px;color:var(--muted)"> / 100</small></div><div class="progress"><i id="mConvBar" style="width:42%"></i></div></div>
-        <div class="card span-4"><span class="label">Próximo evento de riesgo</span><b style="font:600 18px var(--f-display)" id="mNextName">—</b><div class="regime mono" style="font-size:28px" id="mNextCount">—</div></div>
-
-        <div class="card span-7">
-          <div class="card-head"><span class="label">Resumen macro</span><span class="label" id="mBriefTime"></span></div>
-          <p style="margin:0" id="mBrief">El sentimiento de riesgo sigue a la defensiva. La rentabilidad del bono a 10 años de EE. UU. sube por tercera sesión y el índice dólar se mantiene por encima de 104, lo que presiona a la renta variable tecnológica. El oro aguanta gracias a la demanda refugio pese al dólar fuerte, una divergencia que suele anticipar giros. El crudo cotiza con prima geopolítica.</p>
-          <div class="meta-row">
+      <div class="mx" id="mGlobal">
+        <!-- Banda de régimen -->
+        <section class="mx-hero">
+          <div class="mx-cell mx-regime"><span class="label">Régimen global</span><div class="regime down" id="mRegime">RISK-OFF</div><small id="mRegimeNote">Postura defensiva: rentabilidades al alza y dólar fuerte.</small></div>
+          <div class="mx-cell"><span class="label">Convicción macro</span><div class="regime" id="mConv" style="color:var(--brass)">42<small style="font-size:16px;color:var(--muted)"> / 100</small></div><div class="progress"><i id="mConvBar" style="width:42%"></i></div></div>
+          <div class="mx-cell mx-facts">
             <div><span class="label">Motor principal</span><b id="mPrimary">Tipos de EE. UU.</b></div>
-            <div><span class="label">Ventana de riesgo</span><b id="mWindow">Apertura NY</b></div>
             <div><span class="label">Sesgo macro</span><b class="down" id="mBias">Defensivo</b></div>
+            <div><span class="label">Ventana de riesgo</span><b id="mWindow">Apertura NY</b></div>
+          </div>
+          <div class="mx-cell mx-next"><span class="label">Próximo evento de riesgo</span><b id="mNextName">—</b><div class="mono mx-count" id="mNextCount">—</div></div>
+        </section>
+
+        <div class="mx-two">
+          <div class="card mx-dossier">
+            <div class="card-head"><span class="label">Resumen macro</span><span class="label" id="mBriefTime"></span></div>
+            <p id="mBrief">El sentimiento de riesgo sigue a la defensiva. La rentabilidad del bono a 10 años de EE. UU. sube por tercera sesión y el índice dólar se mantiene por encima de 104, lo que presiona a la renta variable tecnológica. El oro aguanta gracias a la demanda refugio pese al dólar fuerte, una divergencia que suele anticipar giros. El crudo cotiza con prima geopolítica.</p>
+          </div>
+          <div class="card">
+            <span class="label">Régimen · últimos 7 días</span>
+            <div class="hist" id="mHist"></div>
+            <span class="label" style="margin-top:6px">Indicadores clave</span>
+            <div class="bars" id="mDrivers"></div>
           </div>
         </div>
-        <div class="card span-5">
-          <span class="label">Régimen · últimos 7 días</span>
-          <div class="hist" id="mHist"></div>
-          <span class="label" style="margin-top:6px">Indicadores clave</span>
-          <div class="bars" id="mDrivers"></div>
-        </div>
 
-        <div class="card span-12">
+        <div id="mAssetsGrid"></div>
+        <div class="macro-quotes" id="tvMacroQuotes"></div>
+
+        <div class="card">
           <div class="card-head"><span class="label">Alineación por activo</span><span class="label">Macro vs. orderflow</span></div>
           <div class="tbl-wrap"><table class="tbl" id="mAlign"></table></div>
         </div>
 
-        <div class="card span-6">
-          <span class="label">Bancos centrales</span>
-          <div class="cb-grid" id="mBanks"></div>
+        <div class="mx-two">
+          <div class="card">
+            <span class="label">Bancos centrales</span>
+            <div class="cb-grid" id="mBanks"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="label">Correlaciones · 20 sesiones</span><span class="label"><span class="up">+1</span> / <span class="down">−1</span></span></div>
+            <div style="overflow-x:auto"><div class="corr" id="mCorr"></div></div>
+          </div>
         </div>
-        <div class="card span-6">
-          <div class="card-head"><span class="label">Correlaciones · 20 sesiones</span><span class="label"><span class="up">+1</span> / <span class="down">−1</span></span></div>
-          <div style="overflow-x:auto"><div class="corr" id="mCorr"></div></div>
-        </div>
-        <div class="card span-7">
-          <div><span class="label">Seguimiento de divergencias</span><p style="margin:4px 0 0;color:var(--muted);font-size:13.5px">Activos donde la macro y el análisis técnico no coinciden durante 3 sesiones o más.</p></div>
-          <div class="div-list" id="mDivG"></div>
-        </div>
-        <div class="card span-5">
-          <div class="card-head"><span class="label">Alertas macro</span><button class="icon-btn" data-alert-new style="color:var(--brass);border-color:var(--brass)">+ Nueva alerta</button></div>
-          <div class="alert-form" hidden></div>
-          <div class="alert-list"></div>
+        <div class="mx-two">
+          <div class="card">
+            <div><span class="label">Seguimiento de divergencias</span><p style="margin:4px 0 0;color:var(--muted);font-size:13.5px">Activos donde la macro y el análisis técnico no coinciden durante 3 sesiones o más.</p></div>
+            <div class="div-list" id="mDivG"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="label">Alertas macro</span><button class="icon-btn" data-alert-new style="color:var(--brass);border-color:var(--brass)">+ Nueva alerta</button></div>
+            <div class="alert-form" hidden></div>
+            <div class="alert-list"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -299,11 +317,11 @@
   </div>
 </div>
 
-<script src="js/config.js?v=20261019a"></script>
-<script src="js/auth.js?v=20261019a"></script>
-<script src="js/tv.js?v=20261019a"></script>
-<script src="js/app.js?v=20261019a"></script>
-<script src="js/sections.js?v=20261019a"></script>
-<script src="js/sesion.js?v=20261019a"></script>
+<script src="js/config.js?v=20261019c"></script>
+<script src="js/auth.js?v=20261019c"></script>
+<script src="js/tv.js?v=20261019c"></script>
+<script src="js/app.js?v=20261019c"></script>
+<script src="js/sections.js?v=20261019c"></script>
+<script src="js/sesion.js?v=20261019c"></script>
 </body>
 </html>

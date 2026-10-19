@@ -89,11 +89,13 @@
 
   // Cuadrícula "Inteligencia por activo" de la vista Global
   function renderAssetGrid() {
-    $("mAssetsGrid").innerHTML = `<div class="card"><div class="card-head"><span class="label">Inteligencia por activo</span><span class="label">Pulsa un activo para ver su panel</span></div>
-      <div class="asset-grid">${["MNQ", "NQ", "USTEC", "MYM", "ES", "GC", "CL", "EUR/USD", "GBP/USD", "USD/JPY"].map(s => { const a = ASSETS[s], r = alignOf(a);
-        return `<button class="asset-tile" data-asset="${s}"><span class="asset-sym">${s}</span><span class="label" style="font-size:10px">${a.n}</span>
-          <b class="${bcls(a.bias)}">${a.bias.toUpperCase()}</b><div class="progress"><i style="width:${a.conv}%"></i></div>
-          <span class="pill ${r.c}">${r.short}</span></button>`; }).join("")}</div></div>`;
+    $("mAssetsGrid").innerHTML = `<div class="card mx-matrix"><div class="card-head"><span class="label">Inteligencia por activo</span><span class="label">Pulsa un activo para ver su panel</span></div>
+      <div class="mx-rows">${["MNQ", "NQ", "USTEC", "MYM", "ES", "GC", "CL", "EUR/USD", "GBP/USD", "USD/JPY"].map(s => { const a = ASSETS[s], r = alignOf(a);
+        return `<button class="mx-row ${bcls(a.bias)}" data-asset="${s}"><span class="mx-sym">${s}<small>${a.n}</small></span>
+          <b class="mx-bias ${bcls(a.bias)}">${a.bias.toUpperCase()}</b>
+          <span class="mx-convbar"><i style="width:${a.conv}%"></i></span><span class="mx-conv mono">${a.conv}</span>
+          <span class="mx-key">${esc(a.key || "")}</span>
+          <span class="pill ${r.c}">${r.short}</span><span class="mx-go" aria-hidden="true">›</span></button>`; }).join("")}</div></div>`;
   }
 
   /* ---------- MACRO POR ACTIVO ---------- */
@@ -206,17 +208,17 @@
     const fconv = Math.abs(buy - 50) >= 12 ? "ALTA" : Math.abs(buy - 50) >= 6 ? "MEDIA" : "BAJA";
     $("mTitle").textContent = `${s} — ${a.n} · inteligencia macro`;
     $("mAsset").innerHTML = `
-      <div class="card span-12 intel-hero">
-        <div class="intel-head"><span class="label"><span class="dot"></span>&nbsp; ${s} — ${a.n.toUpperCase()} · INTELIGENCIA MACRO</span><button class="icon-btn" data-macro-back>← Global</button></div>
-        <div class="intel-grid">
-          <div class="intel-cell"><span class="label">Sesgo macro</span><b class="intel-big ${bcls(a.bias)}">${a.bias.toUpperCase()}</b><small>Motor principal: ${a.key}</small></div>
-          <div class="intel-cell"><span class="label">Convicción</span><b class="intel-mid">${a.conv}<small>/100</small></b><div class="progress"><i style="width:${a.conv}%"></i></div><small>${convTxt}</small></div>
+      <div class="span-12 mx-hero mx-asset-hero ${bcls(a.bias)}">
+        <div class="mx-cell mx-asset-id"><button class="icon-btn" data-macro-back>← Global</button><span class="label"><span class="dot"></span>&nbsp; Inteligencia macro</span><b class="mx-asset-sym">${s}</b><small>${a.n}</small></div>
+        <div class="mx-cell"><span class="label">Sesgo macro</span><b class="intel-big ${bcls(a.bias)}">${a.bias.toUpperCase()}</b><small>Motor principal: ${a.key}</small></div>
+        <div class="mx-cell mx-ringcell"><svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" fill="none" stroke="#1d2742" stroke-width="10"/><circle cx="60" cy="60" r="50" fill="none" stroke="url(#mxg)" stroke-width="10" stroke-linecap="round" pathLength="100" stroke-dasharray="${a.conv} 100" transform="rotate(-90 60 60)"/><defs><linearGradient id="mxg"><stop offset="0" stop-color="#00f0ff"/><stop offset="1" stop-color="#8b5cff"/></linearGradient></defs><text x="60" y="66" text-anchor="middle" font-size="30" font-weight="700">${a.conv}</text></svg><div><span class="label">Convicción</span><b>${convTxt.replace("CONVICCIÓN ", "")}</b></div></div>
+        <div class="intel-grid mx-intel">
           <div class="intel-cell"><span class="label">Alineación Kairos</span><span class="pill ${r.c} intel-pill">${r.t}</span><small>Confianza ${conf}% · ${(a.alLabels || ["macro", "sesgo", "orderflow", "mapa de calor"]).join(", ").toLowerCase()}</small></div>
           <div class="intel-cell"><span class="label">Próximo riesgo · ejemplo</span><b class="intel-event">${nx ? esc(nx.n) : "Sin eventos esta semana"}</b><span class="intel-count mono" data-anext>${nx ? countdown(nx.at - Date.now()) : "—"}</span><small>${nx ? evTime(nx.at) + " · alto impacto" : ""}</small></div>
         </div>
       </div>
       <div class="card span-4"><span class="label">Motores principales</span>
-        <div class="drv">${a.dr.map(d => `<div><span>${d[0]}</span><small>${d[1]}</small><span class="pill ${bcls(d[2])}">${d[2].toUpperCase()}</span></div>`).join("")}</div></div>
+        <div class="mx-drv">${a.dr.map(d => `<div class="${bcls(d[2])}"><span><b>${d[0]}</b><small>${d[1]}</small></span><span class="mx-imp">${d[2].toUpperCase()}</span></div>`).join("")}</div></div>
       <div class="card span-4"><span class="label">Alineación Kairos</span>
         <div class="al4">${(a.alLabels || ["Macro", "Sesgo", "Orderflow", "Mapa de calor"]).map((l, i) => `<div><span class="label" style="font-size:10px">${l}</span><b class="${bcls(a.al[i])}">${a.al[i]}</b></div>`).join("")}</div>
         <span class="pill ${r.c}" style="justify-self:start;font-size:13px;padding:8px 12px">${r.t}</span>
@@ -230,7 +232,7 @@
       <div class="card span-7"><span class="label">Matriz de motores</span>
         <div class="tbl-wrap"><table class="tbl" style="min-width:520px"><thead><tr><th>Motor</th><th>Estado</th><th>Impacto en ${s}</th><th>Lectura</th></tr></thead><tbody>
         ${a.dr.map(d => `<tr><td><b>${d[0]}</b></td><td>${d[1]}</td><td><span class="pill ${bcls(d[2])}">${d[2].toUpperCase()}</span></td><td style="color:var(--muted)">${d[3]}</td></tr>`).join("")}</tbody></table></div></div>
-      <div class="card span-5"><div class="card-head"><span class="label">Resumen IA del activo</span><span class="label">${new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</span></div>
+      <div class="card span-5"><div class="card-head"><span class="label">Resumen del activo</span><span class="label">${new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</span></div>
         <p style="margin:0">${a.brief}</p></div>
       <div class="card span-7"><div class="card-head"><span class="label">Señal de orderflow macro</span><span class="demo-tag">EJEMPLO</span></div>
         <div style="display:grid;gap:8px">
