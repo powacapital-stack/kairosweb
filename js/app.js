@@ -1,5 +1,6 @@
 /* Sala de Mando: navegación, relojes, precios en vivo (TradingView) y módulos de orderflow.
-   El sesgo, el orderflow, los niveles y el briefing son DATOS DE EJEMPLO simulados hasta conectar un proveedor de orderflow. */
+   El sesgo y su confianza salen de la macro real (/api/macro: sesgo, tendencia 20d, momento 5d y régimen).
+   El orderflow, los niveles y el briefing siguen siendo DATOS DE EJEMPLO hasta conectar un proveedor de orderflow. */
 (() => {
   const K = window.KAIROS;
 
@@ -18,7 +19,25 @@
   const dec = t => t >= 1 ? 0 : String(t).split(".")[1].length;
   const fmt = (v, t) => v.toLocaleString("es-ES", { minimumFractionDigits: dec(t), maximumFractionDigits: dec(t) });
   const sign = v => (v > 0 ? "+" : "");
-  const state = m => m.buy >= 55 ? "up" : m.buy <= 45 ? "down" : "flat";
+  const flowState = m => m.buy >= 55 ? "up" : m.buy <= 45 ? "down" : "flat";
+
+  // ---------- Sesgo real a partir de la macro ----------
+  // Cada instrumento usa la lectura macro de su activo de referencia. Las criptomonedas no tienen macro: siguen de ejemplo.
+  const MACRO_KEY = { MNQ: "MNQ", NQ: "NQ", USTEC: "USTEC", MES: "ES", ES: "ES", MYM: "MYM", YM: "MYM", GC: "GC", MGC: "GC", CL: "CL",
+    "EUR/USD": "EUR/USD", "GBP/USD": "GBP/USD", "USD/JPY": "USD/JPY" };
+  const dirOf = v => /alcista/i.test(v) ? 1 : /bajista/i.test(v) ? -1 : 0;
+  let REAL = {}, realAsOf = "";
+  function realBias(s) {
+    const a = REAL[MACRO_KEY[s]]; if (!a) return null;
+    const al = a.al || [], dirs = al.map(dirOf), d = dirOf(a.bias);
+    const agree = d ? dirs.filter(x => x === d).length : dirs.filter(x => x === 0).length;
+    // Confianza: convicción macro ajustada por cuántos marcos (macro, tendencia 20d, momento 5d, régimen) apuntan igual
+    const conf = Math.round(Math.max(5, Math.min(95, a.conv * (0.55 + 0.15 * agree))));
+    const st = d > 0 ? "up" : d < 0 ? "down" : "flat";
+    const tr = a.trend || {};
+    return { st, conf, agree, total: al.length || 4, key: a.key, chg5: tr.chg5d_pct, chg20: tr.chg20d_pct, labels: a.alLabels || [], al };
+  }
+  const state = m => realBias(m.s)?.st || flowState(m);
   const stateTxt = { up: "ALCISTA", down: "BAJISTA", flat: "NEUTRAL" };
 
   // Enlaces de Discord (desde config.js)
@@ -87,18 +106,21 @@
     renderChart();
   });
 
-  // ---------- Módulos de ejemplo ----------
+  // ---------- Sesgo y confianza ----------
   function renderBias() {
-    const m = bySym[focus], st = state(m);
-    const conf = Math.round(Math.min(98, Math.abs(m.buy - 50) * 3.2 + Math.abs(m.delta) / 25));
+    const m = bySym[focus], rb = realBias(focus), st = state(m);
+    const conf = rb ? rb.conf : Math.round(Math.min(98, Math.abs(m.buy - 50) * 3.2 + Math.abs(m.delta) / 25));
+    const src = document.getElementById("biasSrc");
+    if (src) { src.textContent = rb ? `MACRO REAL · FRED · ${realAsOf}` : "DATOS DE EJEMPLO"; src.classList.toggle("live-src", !!rb); }
     document.getElementById("bias").className = "bias " + (st === "down" ? "is-down" : "is-up");
     document.getElementById("biasCard").style.setProperty("--c", st === "down" ? "var(--down)" : st === "up" ? "var(--up)" : "var(--flat)");
     document.getElementById("biasWord").textContent = stateTxt[st];
     document.getElementById("biasWord").style.color = st === "flat" ? "var(--flat)" : "";
-    document.getElementById("biasSub").textContent = st === "up" ? "Domina la presión compradora" : st === "down" ? "Domina la presión vendedora" : "Sin dirección clara";
+    document.getElementById("biasSub").textContent = rb ? `Motor: ${rb.key}` : st === "up" ? "Domina la presión compradora" : st === "down" ? "Domina la presión vendedora" : "Sin dirección clara";
     document.getElementById("biasSym").textContent = focus;
-    document.getElementById("cond").textContent = conf > 45 ? "En tendencia" : "Rango";
-    document.getElementById("align").textContent = (conf > 60 ? 4 : conf > 35 ? 3 : 2) + "/4 marcos";
+    document.getElementById("cond").textContent = rb && isFinite(rb.chg20) ? `${rb.chg20 > 0 ? "+" : ""}${rb.chg20.toFixed(1).replace(".", ",")} % en 20 días` : conf > 45 ? "En tendencia" : "Rango";
+    document.getElementById("align").textContent = rb ? `${rb.agree}/${rb.total} marcos` : (conf > 60 ? 4 : conf > 35 ? 3 : 2) + "/4 marcos";
+    document.getElementById("align").title = rb ? rb.labels.map((l, i) => `${l}: ${rb.al[i]}`).join(" · ") : "";
     const d = document.getElementById("deltaTot"); d.textContent = sign(m.delta) + m.delta; d.className = m.delta >= 0 ? "up" : "down";
     document.getElementById("updated").textContent = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     const col = conf >= 60 ? "#22f5a5" : conf >= 35 ? "#c9b458" : "#ff4d7d";
@@ -205,6 +227,7 @@
       m.p = Math.max(m.t, m.p * (1 + drift + (Math.random() - .5) * 0.0012));
       m.p = Math.round(m.p / m.t) * m.t;
       m.buy = Math.min(78, Math.max(22, m.buy + (Math.random() - .5) * 3));
+      const rb = realBias(m.s); if (rb?.st === "up") m.buy = Math.max(52, m.buy); else if (rb?.st === "down") m.buy = Math.min(48, m.buy);
       m.delta += Math.round((m.buy - 50) * 2 + (Math.random() - .5) * 30);
     });
     buckets[11] += Math.round((bySym[focus].buy - 50) / 3 + (Math.random() - .5) * 12);
@@ -231,6 +254,16 @@
   });
 
   window.KairosShow = show;
+  // Carga la macro real; mientras tanto (o si falla) se ve el ejemplo
+  fetch("/api/macro").then(r => (r.ok ? r.json() : null)).then(j => {
+    if (!j?.assets) return;
+    REAL = j.assets;
+    realAsOf = (j.asOf || "").split("-").reverse().slice(0, 2).join("/");
+    // El flujo de ejemplo arranca a favor del sesgo real para que la tarjeta no lo contradiga
+    M.forEach(m => { const rb = realBias(m.s); if (rb) m.buy = 50 + (rb.st === "up" ? 1 : rb.st === "down" ? -1 : 0) * (6 + Math.random() * 6) + (rb.st === "flat" ? Math.random() * 6 - 3 : 0); });
+    renderFlows(); renderDesk();
+  }).catch(() => {});
+
   renderChips(); renderQuotes(); renderChart(); renderDesk(); tick();
   window.addEventListener("load", () => show(location.hash.slice(1) || "desk"));
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "desk"));
