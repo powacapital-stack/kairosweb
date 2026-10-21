@@ -292,6 +292,8 @@
       $("mRegime").textContent = g.regime; $("mRegime").className = "regime " + rc;
       $("mRegimeNote").textContent = g.macroBias;
       $("mConv").innerHTML = g.conviction + '<small style="font-size:16px;color:var(--muted)"> / 100</small>'; $("mConvBar").style.width = g.conviction + "%";
+      if (g.subindices) $("mSubs").innerHTML = [["Riesgo", g.subindices.riesgo], ["Liquidez", g.subindices.liquidez], ["Crecimiento", g.subindices.crecimiento]]
+        .map(([n, v]) => `<div title="0 = muy desfavorable · 50 = neutro · 100 = muy favorable"><span>${n}</span><b class="${v >= 60 ? "up" : v <= 40 ? "down" : "flat"}">${v}</b><i><b style="width:${v}%"></b></i></div>`).join("");
       $("mBrief").textContent = g.brief; $("mPrimary").textContent = g.primaryDriver; $("mWindow").textContent = g.riskWindow;
       $("mBias").textContent = g.macroBias; $("mBias").className = rc;
     }

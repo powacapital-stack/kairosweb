@@ -153,7 +153,7 @@ module.exports = async (req, res) => {
       global: {
         regime: ai.regime, conviction: Math.max(0, Math.min(100, Math.round(ai.conviction))),
         primaryDriver: ai.primary_driver, macroBias: ai.macro_bias, riskWindow: ai.risk_window, brief: ai.brief,
-        scores: f.globalScores, regimeHistory: f.regimeHistory, policy: f.policy, correlation: f.correlation,
+        scores: f.globalScores, subindices: f.subindices, regimeHistory: f.regimeHistory, policy: f.policy, correlation: f.correlation,
       },
       assets,
     });

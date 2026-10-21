@@ -128,6 +128,14 @@ function computeFeatures(d) {
     { name: "Crédito (HY)", v: clamp(Math.round(-hy * 1.5), -100, 100) },
   ];
 
+  // Subíndices de la convicción global (0 = muy desfavorable, 50 = neutro, 100 = muy favorable al riesgo)
+  const payK = f.labor.payrolls_3m_avg_k, unDiff = unNow != null && un6 != null ? unNow - un6 : 0;
+  f.subindices = {
+    riesgo: clamp(Math.round(50 + riskAppetite / 2), 0, 100),
+    liquidez: clamp(Math.round(50 + liq * 40 - hy * 0.5), 0, 100),
+    crecimiento: clamp(Math.round(50 + (payK == null ? 0 : (payK - 100) / 4) - unDiff * 60), 0, 100),
+  };
+
   // Régimen de riesgo de los últimos 7 días hábiles (VIX y diferencial high yield)
   const regimeFor = (v, h) => (v == null ? "Neutral" : v < 16 && (h ?? 4) < 3.5 ? "Risk-on" : v > 21 || (h ?? 0) > 4.5 ? "Risk-off" : "Neutral");
   const hyMap = new Map(d.BAMLH0A0HYM2.map(o => [o.date, o.v]));

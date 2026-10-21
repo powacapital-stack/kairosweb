@@ -626,3 +626,9 @@ body.viewer-open { overflow: hidden; }
   .d2-markets .label, .d2-markets .chip { flex: none; }
   .d2-ring .ring { width: 88px; height: 88px; }
 }
+
+.mx-subs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 6px; }
+.mx-subs div { display: grid; grid-template-columns: 1fr; gap: 3px; font-size: 11px; letter-spacing: .04em; color: var(--muted); min-width: 0; }
+.mx-subs b { font: 600 13px var(--f-data); }
+.mx-subs i { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
+.mx-subs i b { display: block; height: 100%; background: var(--grad); }

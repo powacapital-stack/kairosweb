@@ -1,6 +1,7 @@
 /* Sala de Mando: navegación, relojes, precios en vivo (TradingView) y módulos de orderflow.
    El sesgo y su confianza salen de la macro real (/api/macro: sesgo, tendencia 20d, momento 5d y régimen).
-   El orderflow, los niveles y el briefing siguen siendo DATOS DE EJEMPLO hasta conectar un proveedor de orderflow. */
+   El precio y los niveles clave son reales (/api/niveles). El plan de juego se calcula por reglas con el sesgo y esos niveles.
+   El orderflow (compra/venta, delta, buckets) y el perfil de volumen siguen siendo DATOS DE EJEMPLO hasta conectar un proveedor. */
 (() => {
   const K = window.KAIROS;
 
@@ -54,11 +55,11 @@
     if (selected.includes(s)) { if (selected.length > 1) selected = selected.filter(x => x !== s); }
     else { selected = [...selected.slice(-2), s]; }
     focus = selected.includes(focus) ? focus : selected[0];
-    renderChips(); renderQuotes(); renderChart(); renderDesk();
+    renderChips(); renderQuotes(); renderChart(); renderDesk(); loadLevels();
   });
   document.getElementById("quotes").addEventListener("click", e => {
     const q = e.target.closest(".quote"); if (!q || q.dataset.s === focus) return;
-    focus = q.dataset.s; markFocus(); renderChart(); renderDesk();
+    focus = q.dataset.s; markFocus(); renderChart(); renderDesk(); if (!LIVE[focus]) loadLevels();
   });
 
   // ---------- Tarjetas: precio real (TradingView) + flujo de ejemplo ----------
@@ -122,7 +123,8 @@
     document.getElementById("align").textContent = rb ? `${rb.agree}/${rb.total} marcos` : (conf > 60 ? 4 : conf > 35 ? 3 : 2) + "/4 marcos";
     document.getElementById("align").title = rb ? rb.labels.map((l, i) => `${l}: ${rb.al[i]}`).join(" · ") : "";
     const d = document.getElementById("deltaTot"); d.textContent = sign(m.delta) + m.delta; d.className = m.delta >= 0 ? "up" : "down";
-    document.getElementById("updated").textContent = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    const lt = LIVE[focus]?.time;
+    document.getElementById("updated").textContent = (lt ? new Date(lt) : new Date()).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: lt ? undefined : "2-digit" }) + (lt ? " · precio" : "");
     const col = conf >= 60 ? "#22f5a5" : conf >= 35 ? "#c9b458" : "#ff4d7d";
     const arc = document.getElementById("gArc"); arc.setAttribute("stroke-dasharray", conf + " 100"); arc.setAttribute("stroke", col);
     document.getElementById("gVal").textContent = conf;
@@ -130,7 +132,36 @@
     return { m, st, conf };
   }
 
+  // ---------- Precio y niveles reales (/api/niveles) ----------
+  const LIVE = {};
+  let liveTimer = null;
+  function loadLevels() {
+    const want = [...new Set([...selected, focus])];
+    fetch("/api/niveles?s=" + encodeURIComponent(want.join(","))).then(r => (r.ok ? r.json() : null)).then(j => {
+      if (!j?.data) return;
+      Object.entries(j.data).forEach(([s, v]) => {
+        if (!v || v.error || !Number.isFinite(v.price) || !bySym[s]) return;
+        LIVE[s] = v; const m = bySym[s];
+        m.p = v.price; if (Number.isFinite(v.prevClose)) m.open = v.prevClose;
+      });
+      renderDesk();
+    }).catch(() => {});
+    clearTimeout(liveTimer); liveTimer = setTimeout(loadLevels, 60000);
+  }
+  // Niveles más cercanos por encima y por debajo del precio
+  function nearest(m) {
+    const lv = levels(m).filter(l => l.k !== "now");
+    const above = lv.filter(l => l.v > m.p).sort((a, b) => a.v - b.v), below = lv.filter(l => l.v < m.p).sort((a, b) => b.v - a.v);
+    return { sup: above[0], sup2: above[1], dem: below[0], dem2: below[1] };
+  }
+
   function levels(m) {
+    const L = LIVE[m.s];
+    if (L) {
+      const above = L.levels.filter(l => l.v > m.p).sort((a, b) => a.v - b.v).slice(0, 3);
+      const below = L.levels.filter(l => l.v < m.p).sort((a, b) => b.v - a.v).slice(0, 3);
+      return [...above.map(l => ({ v: l.v, k: "sup", n: l.n })), { v: m.p, k: "now", n: "Precio actual" }, ...below.map(l => ({ v: l.v, k: "dem", n: l.n }))].sort((a, b) => b.v - a.v);
+    }
     const step = m.t >= 1 ? 50 : m.t >= .1 ? 10 : m.t >= .01 ? 0.5 : 0.005;
     const r = Math.round(m.p / step) * step;
     return [
@@ -145,7 +176,7 @@
   }
 
   function renderLadder(m) {
-    document.getElementById("vwap").textContent = fmt(m.p * 0.9996, m.t);
+    document.getElementById("vwap").textContent = fmt(LIVE[m.s]?.vwap ?? m.p * 0.9996, m.t);
     document.getElementById("ladder").innerHTML = levels(m).map(l => {
       const dist = (l.v - m.p) / m.p * 100;
       return `<div class="lvl ${l.k}"><span>${fmt(l.v, m.t)}</span><small>${l.n}</small><span style="text-align:right">${l.k === "now" ? "▶" : sign(dist) + dist.toFixed(2) + "%"}</span></div>`;
@@ -179,20 +210,27 @@
   }
 
   function renderBrief({ m, st, conf }) {
-    const lv = levels(m), sup = lv[2], dem = lv[4];
+    const nb = nearest(m), sup = nb.sup || { v: m.p * 1.003, n: "—" }, dem = nb.dem || { v: m.p * 0.997, n: "—" };
     const now = new Date(); now.setMinutes(Math.floor(now.getMinutes() / 5) * 5, 0, 0);
-    document.getElementById("briefTime").textContent = now.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) + " · ejemplo";
+    document.getElementById("briefTime").textContent = now.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) + (LIVE[m.s] ? " · niveles reales" : " · ejemplo");
     const dir = st === "up" ? "alcista" : st === "down" ? "bajista" : "neutral";
     document.getElementById("brief").innerHTML = `
       <p><b>${m.s}</b> tiene un sesgo <b class="${st}">${dir}</b> con una confianza de ${conf}/100. El ${m.buy.toFixed(0)}% del volumen reciente es comprador.</p>
       <p>Oferta más cercana en <span class="mono">${fmt(sup.v, m.t)}</span>; demanda en <span class="mono">${fmt(dem.v, m.t)}</span>. ${st === "up" ? "Un retroceso a demanda con el delta aguantando positivo sería la entrada de mayor calidad." : st === "down" ? "Los rebotes hacia la oferta con el delta negativo ofrecen ventas con buen riesgo." : "Mejor esperar a que el precio salga del rango con volumen antes de tomar posición."}</p>
       <p style="color:var(--muted)">Revisa el calendario antes de operar: los datos de alto impacto pueden invalidar cualquier nivel.</p>`;
-    const adv = document.getElementById("advice");
-    adv.textContent = st === "up" ? "BUSCAR COMPRAS" : st === "down" ? "BUSCAR VENTAS" : "ESPERAR";
-    adv.className = st;
-    document.getElementById("adviceTxt").textContent = st === "flat"
-      ? "El flujo está equilibrado. No hay ventaja clara ahora mismo."
-      : `Zona de entrada en ${fmt(st === "up" ? dem.v : sup.v, m.t)}, invalidación ${st === "up" ? "por debajo" : "por encima"} del siguiente nivel.`;
+    // Plan de juego por reglas: el sesgo manda; entrada en el nivel a favor más cercano, invalidación en el siguiente y objetivo en el opuesto
+    const adv = document.getElementById("advice"), txt = document.getElementById("adviceTxt");
+    const size = conf >= 75 ? "tamaño normal" : conf >= 50 ? "tamaño estándar" : "mitad de tamaño";
+    if (st === "flat" || conf < 30) {
+      adv.textContent = "ESPERAR"; adv.className = "flat";
+      txt.textContent = st === "flat" ? "Sesgo neutral: sin ventaja clara. Espera a que el precio salga del rango." : `Confianza ${conf}/100: sin ventaja suficiente. Mejor no operar.`;
+    } else if (st === "up") {
+      adv.textContent = "BUSCAR COMPRAS"; adv.className = "up";
+      txt.textContent = `Compra en retroceso a ${fmt(dem.v, m.t)} (${dem.n}). Invalidación bajo ${fmt((nb.dem2 || { v: dem.v * 0.997 }).v, m.t)}. Objetivo ${fmt(sup.v, m.t)}. Confianza ${conf}: ${size}.`;
+    } else {
+      adv.textContent = "BUSCAR VENTAS"; adv.className = "down";
+      txt.textContent = `Venta en rebote a ${fmt(sup.v, m.t)} (${sup.n}). Invalidación sobre ${fmt((nb.sup2 || { v: sup.v * 1.003 }).v, m.t)}. Objetivo ${fmt(dem.v, m.t)}. Confianza ${conf}: ${size}.`;
+    }
   }
 
   function renderDesk() {
@@ -223,9 +261,11 @@
   // ---------- Simulación del orderflow de ejemplo ----------
   function step() {
     M.forEach(m => {
-      const drift = (m.buy - 50) / 50 * 0.0004;
-      m.p = Math.max(m.t, m.p * (1 + drift + (Math.random() - .5) * 0.0012));
-      m.p = Math.round(m.p / m.t) * m.t;
+      if (!LIVE[m.s]) {
+        const drift = (m.buy - 50) / 50 * 0.0004;
+        m.p = Math.max(m.t, m.p * (1 + drift + (Math.random() - .5) * 0.0012));
+        m.p = Math.round(m.p / m.t) * m.t;
+      }
       m.buy = Math.min(78, Math.max(22, m.buy + (Math.random() - .5) * 3));
       const rb = realBias(m.s); if (rb?.st === "up") m.buy = Math.max(52, m.buy); else if (rb?.st === "down") m.buy = Math.min(48, m.buy);
       m.delta += Math.round((m.buy - 50) * 2 + (Math.random() - .5) * 30);
@@ -264,7 +304,7 @@
     renderFlows(); renderDesk();
   }).catch(() => {});
 
-  renderChips(); renderQuotes(); renderChart(); renderDesk(); tick();
+  renderChips(); renderQuotes(); renderChart(); renderDesk(); tick(); loadLevels();
   window.addEventListener("load", () => show(location.hash.slice(1) || "desk"));
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "desk"));
   setInterval(() => { step(); if (!document.getElementById("desk").hidden) renderDesk(); }, 3000);
