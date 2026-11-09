@@ -133,7 +133,9 @@
       brief: "La macro apunta a un yen más fuerte por la postura restrictiva del Banco de Japón, aunque los tipos americanos frenan la caída del par. Riesgo de intervención verbal si el par se acerca a 152." }
   };
   const bcls = v => /Alcista|Acumulación|Positivo/.test(v) ? "up" : /Bajista|Distribución|Negativo/.test(v) ? "down" : "flat";
+  const AL_TXT = { TOTAL: ["ALINEACIÓN TOTAL", "TOTAL", "up"], PARCIAL: ["ALINEACIÓN PARCIAL", "PARCIAL", "flat"], DIVERGENCIA: ["DIVERGENCIA", "DIVERGENCIA", "down"], MIXTA: ["SEÑALES MIXTAS", "MIXTA", "flat"] };
   function alignOf(a) {
+    if (a.align) { const [t, short, c] = AL_TXT[a.align.status] || AL_TXT.MIXTA; return { t, short, c: a.align.status === "TOTAL" ? bcls(a.align.dir) : c }; }
     const dir = v => bcls(v);
     const m = dir(a.al[0]), agree = a.al.filter(v => dir(v) === m).length;
     if (m !== "flat" && agree === 4) return { t: "ALINEACIÓN TOTAL", short: "TOTAL", c: "up" };
@@ -202,7 +204,7 @@
 
   function renderAsset(s) {
     const a = ASSETS[s], r = alignOf(a), evs = assetEvents(s), nx = evs[0];
-    const conf = Math.min(99, Math.round((a.conv + a.al.filter(v => bcls(v) === bcls(a.al[0])).length * 12) * .85));
+    const conf = a.align ? a.align.conf : Math.min(99, Math.round((a.conv + a.al.filter(v => bcls(v) === bcls(a.al[0])).length * 12) * .85));
     const convTxt = a.conv >= 60 ? "CONVICCIÓN ALTA" : a.conv >= 40 ? "CONVICCIÓN MEDIA" : "CONVICCIÓN BAJA";
     const [buy, delta] = a.flow, sig = buy >= 55 ? "COMPRADORA" : buy <= 45 ? "VENDEDORA" : "NEUTRAL", sigC = buy >= 55 ? "up" : buy <= 45 ? "down" : "flat";
     const fconv = Math.abs(buy - 50) >= 12 ? "ALTA" : Math.abs(buy - 50) >= 6 ? "MEDIA" : "BAJA";
@@ -273,7 +275,7 @@
     $("mHist").innerHTML = days.map((x, i) => `<div><span style="background:${rc[reg[i]]}">${reg[i].replace("Risk-", "").toUpperCase()}</span>${i === 6 ? "Hoy" : cap(x.toLocaleDateString("es-ES", { weekday: "short" }).replace(".", ""))}</div>`).join("");
     const drv = LIVE ? LIVE.global.scores.map(x => [x.name, x.v]) : [["Apetito de riesgo", -38], ["Dólar (DXY)", 55], ["Bono 10 años", 62], ["Volatilidad (VIX)", 30], ["Crédito", -15]];
     $("mDrivers").innerHTML = drv.map(([n, v]) => `<div class="bar-row"><span>${n}</span><div class="track"><i style="left:${v >= 0 ? 50 : 50 + v / 2}%;width:${Math.abs(v) / 2}%;background:${v >= 0 ? "var(--up)" : "var(--down)"}"></i><i style="left:50%;width:1px;background:var(--muted)"></i></div><span class="mono ${v >= 0 ? "up" : "down"}" style="text-align:right">${v > 0 ? "+" : ""}${v}</span></div>`).join("");
-    $("mAlign").innerHTML = `<thead><tr><th>Activo</th><th>Sesgo macro</th><th>Orderflow</th><th>Motor principal</th><th>Alineación</th></tr></thead><tbody>` +
+    $("mAlign").innerHTML = `<thead><tr><th>Activo</th><th>Sesgo macro</th><th>${LIVE ? "Momento 5d" : "Orderflow"}</th><th>Motor principal</th><th>Alineación</th></tr></thead><tbody>` +
       ["NQ", "ES", "GC", "CL", "EUR/USD", "USD/JPY"].map(s => { const a = ASSETS[s], r = alignOf(a);
         return `<tr data-asset="${s}" style="cursor:pointer"><td><b>${s}</b></td><td class="${bcls(a.bias)}">${a.bias}</td><td class="${bcls(a.al[2])}">${a.al[2]}</td><td style="color:var(--muted)">${a.key}</td><td><span class="pill ${r.c}">${r.short}</span></td></tr>`; }).join("") + "</tbody>";
     renderDivs($("mDivG"), null); renderAlerts(); renderAssetGrid();

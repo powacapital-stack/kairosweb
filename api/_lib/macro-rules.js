@@ -73,7 +73,7 @@ function analyzeAsset(key, f) {
   let score = drivers.reduce((s, d) => s + d.w, 0);
   const t20 = f.assets[key]?.chg20d_pct;
   const th = key === "GOLD" ? 10 : /USD/.test(key) ? 0.5 : 1;
-  if (t20 != null) score += t20 > th ? 0.5 : t20 < -th ? -0.5 : 0;
+  if (t20 != null) score += Math.abs(t20) > th * 5 ? Math.sign(t20) : t20 > th ? 0.5 : t20 < -th ? -0.5 : 0;
   const reg = f.regimeToday;
   if (reg !== "Neutral") {
     const on = reg === "Risk-on";

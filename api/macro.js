@@ -75,6 +75,20 @@ Reglas:
 - "brief" de cada activo: 2-3 frases. "brief" global: 3-4 frases. "note" de cada motor: una frase corta.
 - "risk_window" describe en pocas palabras cuándo hay más riesgo (por ejemplo "Apertura de Nueva York" o "Datos de inflación").`;
 
+// Alineación de las 4 lecturas (macro, tendencia 20d, momento 5d, régimen):
+// dirección = la que tenga más lecturas; TOTAL con 4/4, PARCIAL con 3/4, DIVERGENCIA si hay lecturas opuestas, MIXTA en otro caso.
+// Confianza = 60 % de la convicción macro + 10 puntos por lectura a favor − 10 por lectura en contra (5–95).
+const sgn = v => (/alcista/i.test(v) ? 1 : /bajista/i.test(v) ? -1 : 0);
+function alignment(al, conv) {
+  const d = al.map(sgn), up = d.filter(x => x > 0).length, down = d.filter(x => x < 0).length;
+  const dir = up > down ? 1 : down > up ? -1 : 0;
+  const agree = dir ? (dir > 0 ? up : down) : d.filter(x => x === 0).length;
+  const against = dir ? (dir > 0 ? down : up) : 0;
+  const status = dir && agree === al.length ? "TOTAL" : dir && against === 0 && agree >= 3 ? "PARCIAL" : dir && against > 0 ? "DIVERGENCIA" : "MIXTA";
+  const conf = Math.max(5, Math.min(95, Math.round(conv * 0.6 + (dir ? agree : 0) * 10 - against * 10)));
+  return { dir: dir > 0 ? "Alcista" : dir < 0 ? "Bajista" : "Neutral", agree, against, total: al.length, status, conf };
+}
+
 function regimeDir(key, regime) {
   if (regime === "Neutral") return "Neutral";
   const on = regime === "Risk-on";
@@ -141,6 +155,7 @@ module.exports = async (req, res) => {
         alLabels,
         trend: t,
       };
+      assets[ui].align = alignment(assets[ui].al, assets[ui].conv);
     }
 
     res.setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=86400");

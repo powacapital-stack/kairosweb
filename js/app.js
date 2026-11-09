@@ -30,10 +30,11 @@
   let REAL = {}, realAsOf = "";
   function realBias(s) {
     const a = REAL[MACRO_KEY[s]]; if (!a) return null;
-    const al = a.al || [], dirs = al.map(dirOf), d = dirOf(a.bias);
-    const agree = d ? dirs.filter(x => x === d).length : dirs.filter(x => x === 0).length;
-    // Confianza: convicción macro ajustada por cuántos marcos (macro, tendencia 20d, momento 5d, régimen) apuntan igual
-    const conf = Math.round(Math.max(5, Math.min(95, a.conv * (0.55 + 0.15 * agree))));
+    const al = a.al || [], dirs = al.map(dirOf), g = a.align;
+    // Sesgo y confianza = alineación calculada en /api/macro (la misma que muestra la vista Macro)
+    const d = g ? dirOf(g.dir) : dirOf(a.bias);
+    const agree = g ? g.agree : d ? dirs.filter(x => x === d).length : dirs.filter(x => x === 0).length;
+    const conf = g ? g.conf : Math.round(Math.max(5, Math.min(95, a.conv * (0.55 + 0.15 * agree))));
     const st = d > 0 ? "up" : d < 0 ? "down" : "flat";
     const tr = a.trend || {};
     return { st, conf, agree, total: al.length || 4, key: a.key, chg5: tr.chg5d_pct, chg20: tr.chg20d_pct, labels: a.alLabels || [], al };
