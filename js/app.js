@@ -145,6 +145,7 @@
         LIVE[s] = v; const m = bySym[s];
         m.p = v.price; if (Number.isFinite(v.prevClose)) m.open = v.prevClose;
       });
+      window.KairosData?.set("levels", { ...LIVE });
       renderDesk();
     }).catch(() => {});
     clearTimeout(liveTimer); liveTimer = setTimeout(loadLevels, 60000);
@@ -295,20 +296,22 @@
   });
 
   window.KairosShow = show;
-  // Carga la macro real; mientras tanto (o si falla) se ve el ejemplo
-  fetch("/api/macro").then(r => (r.ok ? r.json() : null)).then(j => {
+  // Macro real desde el almacén compartido (la misma respuesta que usa la vista Macro); se repite en cada refresco
+  let seeded = false;
+  const publishFlow = () => window.KairosData?.set("flow", Object.fromEntries(M.map(m => [m.s, { buy: m.buy, delta: m.delta, p: m.p, live: !!LIVE[m.s] }])));
+  window.KairosData?.on("macro", j => {
     if (!j?.assets) return;
     REAL = j.assets;
     realAsOf = (j.asOf || "").split("-").reverse().slice(0, 2).join("/");
     // El flujo de ejemplo arranca a favor del sesgo real para que la tarjeta no lo contradiga
-    M.forEach(m => { const rb = realBias(m.s); if (rb) m.buy = 50 + (rb.st === "up" ? 1 : rb.st === "down" ? -1 : 0) * (6 + Math.random() * 6) + (rb.st === "flat" ? Math.random() * 6 - 3 : 0); });
-    renderFlows(); renderDesk();
-  }).catch(() => {});
+    if (!seeded) { seeded = true; M.forEach(m => { const rb = realBias(m.s); if (rb) m.buy = 50 + (rb.st === "up" ? 1 : rb.st === "down" ? -1 : 0) * (6 + Math.random() * 6) + (rb.st === "flat" ? Math.random() * 6 - 3 : 0); }); }
+    renderFlows(); renderDesk(); publishFlow();
+  });
 
   renderChips(); renderQuotes(); renderChart(); renderDesk(); tick(); loadLevels();
   window.addEventListener("load", () => show(location.hash.slice(1) || "desk"));
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "desk"));
-  setInterval(() => { step(); if (!document.getElementById("desk").hidden) renderDesk(); }, 3000);
+  setInterval(() => { step(); publishFlow(); if (!document.getElementById("desk").hidden) renderDesk(); }, 3000);
   setInterval(tick, 15000);
   setInterval(() => { buckets.shift(); buckets.push(0); }, 300000);
 })();

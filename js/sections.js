@@ -191,23 +191,37 @@
 
   function deltaSpark(s, a) {
     const r = rng(daySeed + s), W = 320, H = 70, n = 40; let v = 0; const pts2 = [];
-    for (let i = 0; i < n; i++) { v += (a.flow[1] / n) + (r() - .5) * Math.abs(a.flow[1] || 200) / 6; pts2.push(v); }
-    pts2[n - 1] = a.flow[1];
+    const fd = flowOf(s, a)[1];
+    for (let i = 0; i < n; i++) { v += (fd / n) + (r() - .5) * Math.abs(fd || 200) / 6; pts2.push(v); }
+    pts2[n - 1] = fd;
     const mn = Math.min(0, ...pts2), mx = Math.max(0, ...pts2), sp = mx - mn || 1;
     const X = i => i / (n - 1) * W, Y = y => 4 + (mx - y) / sp * (H - 8);
-    const line = pts2.map((y, i) => `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(" "), col = a.flow[1] >= 0 ? "#22f5a5" : "#ff4d7d";
+    const line = pts2.map((y, i) => `${X(i).toFixed(1)},${Y(y).toFixed(1)}`).join(" "), col = fd >= 0 ? "#22f5a5" : "#ff4d7d";
     return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block" role="img" aria-label="Delta acumulado">
       <line x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}" stroke="#8b93ad" stroke-dasharray="3 3"/>
       <polygon points="0,${Y(0)} ${line} ${W},${Y(0)}" fill="${col}" fill-opacity=".15"/><polyline points="${line}" fill="none" stroke="${col}" stroke-width="2"/>
       <circle cx="${X(n - 1)}" cy="${Y(pts2[n - 1])}" r="3.5" fill="${col}"/></svg>`;
   }
 
+  function flowCard(s, a) {
+    const [buy, delta] = flowOf(s, a), sig = buy >= 55 ? "COMPRADORA" : buy <= 45 ? "VENDEDORA" : "NEUTRAL", sigC = buy >= 55 ? "up" : buy <= 45 ? "down" : "flat";
+    const fconv = Math.abs(buy - 50) >= 12 ? "ALTA" : Math.abs(buy - 50) >= 6 ? "MEDIA" : "BAJA", sell = Math.round((100 - buy) * 10) / 10;
+    return `<div class="card-head"><span class="label">Señal de orderflow macro</span><span class="demo-tag">EJEMPLO · IGUAL QUE SALA DE MANDO</span></div>
+        <div style="display:grid;gap:8px">
+          <div class="bar-row"><span>Presión compradora</span><div class="track"><i style="left:0;width:${buy}%;background:var(--up)"></i></div><span class="mono up" style="text-align:right">${buy}%</span></div>
+          <div class="bar-row"><span>Presión vendedora</span><div class="track"><i style="left:0;width:${sell}%;background:var(--down)"></i></div><span class="mono down" style="text-align:right">${sell}%</span></div>
+        </div>
+        <span class="label">Delta acumulado · sesión</span>${deltaSpark(s, a)}
+        <div class="meta-row"><div><span class="label">Delta neto</span><b class="${delta >= 0 ? "up" : "down"}">${delta > 0 ? "+" : ""}${delta.toLocaleString("es-ES")}</b></div>
+          <div><span class="label">Compra / venta</span><b>${buy} / ${sell}</b></div>
+          <div><span class="label">Señal</span><b class="${sigC}">${sig}</b></div>
+          <div><span class="label">Convicción</span><b>${fconv}</b></div></div>`;
+  }
+
   function renderAsset(s) {
     const a = ASSETS[s], r = alignOf(a), evs = assetEvents(s), nx = evs[0];
     const conf = a.align ? a.align.conf : Math.min(99, Math.round((a.conv + a.al.filter(v => bcls(v) === bcls(a.al[0])).length * 12) * .85));
     const convTxt = a.conv >= 60 ? "CONVICCIÓN ALTA" : a.conv >= 40 ? "CONVICCIÓN MEDIA" : "CONVICCIÓN BAJA";
-    const [buy, delta] = a.flow, sig = buy >= 55 ? "COMPRADORA" : buy <= 45 ? "VENDEDORA" : "NEUTRAL", sigC = buy >= 55 ? "up" : buy <= 45 ? "down" : "flat";
-    const fconv = Math.abs(buy - 50) >= 12 ? "ALTA" : Math.abs(buy - 50) >= 6 ? "MEDIA" : "BAJA";
     $("mTitle").textContent = `${s} — ${a.n} · inteligencia macro`;
     $("mAsset").innerHTML = `
       <div class="span-12 mx-hero mx-asset-hero ${bcls(a.bias)}">
@@ -234,18 +248,9 @@
       <div class="card span-7"><span class="label">Matriz de motores</span>
         <div class="tbl-wrap"><table class="tbl" style="min-width:520px"><thead><tr><th>Motor</th><th>Estado</th><th>Impacto en ${s}</th><th>Lectura</th></tr></thead><tbody>
         ${a.dr.map(d => `<tr><td><b>${d[0]}</b></td><td>${d[1]}</td><td><span class="pill ${bcls(d[2])}">${d[2].toUpperCase()}</span></td><td style="color:var(--muted)">${d[3]}</td></tr>`).join("")}</tbody></table></div></div>
-      <div class="card span-5"><div class="card-head"><span class="label">Resumen del activo</span><span class="label">${new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</span></div>
+      <div class="card span-5"><div class="card-head"><span class="label">Resumen del activo</span><span class="label">${LIVE ? "FRED · " + LIVE.asOf.split("-").reverse().join("/") : "ejemplo"}</span></div>
         <p style="margin:0">${a.brief}</p></div>
-      <div class="card span-7"><div class="card-head"><span class="label">Señal de orderflow macro</span><span class="demo-tag">EJEMPLO</span></div>
-        <div style="display:grid;gap:8px">
-          <div class="bar-row"><span>Presión compradora</span><div class="track"><i style="left:0;width:${buy}%;background:var(--up)"></i></div><span class="mono up" style="text-align:right">${buy}%</span></div>
-          <div class="bar-row"><span>Presión vendedora</span><div class="track"><i style="left:0;width:${100 - buy}%;background:var(--down)"></i></div><span class="mono down" style="text-align:right">${100 - buy}%</span></div>
-        </div>
-        <span class="label">Delta acumulado · sesión</span>${deltaSpark(s, a)}
-        <div class="meta-row"><div><span class="label">Delta neto</span><b class="${delta >= 0 ? "up" : "down"}">${delta > 0 ? "+" : ""}${delta.toLocaleString("es-ES")}</b></div>
-          <div><span class="label">Compra / venta</span><b>${buy} / ${100 - buy}</b></div>
-          <div><span class="label">Señal</span><b class="${sigC}">${sig}</b></div>
-          <div><span class="label">Convicción</span><b>${fconv}</b></div></div></div>
+      <div class="card span-7" id="mFlow">${flowCard(s, a)}</div>
       <div class="card span-5"><div class="card-head"><span class="label">Alertas macro</span><button class="icon-btn" data-alert-new style="color:var(--brass);border-color:var(--brass)">+ Nueva alerta</button></div>
         <div class="alert-form" hidden></div><div class="alert-list"></div></div>`;
     renderDivs($("mDivA"), s); renderAlerts();
@@ -302,25 +307,28 @@
     tickMacro();
   }
 
-  /* ---------- Datos macro reales (/api/macro: FRED + Claude) ---------- */
-  let LIVE = null, liveTried = false;
-  async function loadLiveMacro() {
-    if (liveTried) return; liveTried = true;
-    try {
-      const r = await fetch("/api/macro");
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const j = await r.json();
-      if (!j.assets || !j.global) throw new Error("respuesta incompleta");
-      LIVE = j;
-      Object.entries(j.assets).forEach(([s, a]) => { if (ASSETS[s]) ASSETS[s] = { ...ASSETS[s], ...a }; });
-      const t = new Date(j.generatedAt).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-      $("mSource").textContent = "DATOS REALES · FRED" + (j.engine === "ia" ? " + IA" : "") + " · " + t;
-      $("mSource").classList.add("live-src");
-      if (!$("view-macro").hidden) showMacro();
-    } catch (e) {
-      console.info("Macro en modo ejemplo:", e.message);
-    }
+  /* ---------- Datos macro reales (almacén compartido KairosData ← /api/macro) ---------- */
+  let LIVE = null;
+  window.KairosData?.on("macro", j => {
+    LIVE = j;
+    Object.entries(j.assets).forEach(([s, a]) => { if (ASSETS[s]) ASSETS[s] = { ...ASSETS[s], ...a }; });
+    const t = new Date(j.generatedAt).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    $("mSource").textContent = "DATOS REALES · FRED" + (j.engine === "ia" ? " + IA" : "") + " · " + t;
+    $("mSource").classList.add("live-src");
+    if (!$("view-macro").hidden) showMacro();
+  });
+  const loadLiveMacro = () => window.KairosData?.loadMacro();
+
+  // Orderflow: el mismo que muestra la Sala de Mando (MES usa la lectura de ES, YM la de MYM…)
+  const FLOW_SYM = { ES: "ES", MYM: "MYM", NQ: "NQ", MNQ: "MNQ", USTEC: "USTEC", GC: "GC", CL: "CL", "EUR/USD": "EUR/USD", "GBP/USD": "GBP/USD", "USD/JPY": "USD/JPY" };
+  function flowOf(s, a) {
+    const f = window.KairosData?.get("flow")?.[FLOW_SYM[s] || s];
+    return f ? [Math.round(f.buy * 10) / 10, f.delta] : a.flow;
   }
+  window.KairosData?.on("flow", () => {
+    if ($("view-macro").hidden || macroTab === "global") return;
+    const el = $("mFlow"); if (el) el.innerHTML = flowCard(macroTab, ASSETS[macroTab]);
+  });
 
   /* ---------- DIARIO ---------- */
   const SYMS = ["MNQ", "NQ", "USTEC", "MES", "ES", "MYM", "YM", "GC", "MGC", "CL"];

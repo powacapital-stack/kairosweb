@@ -108,7 +108,7 @@
   function loadData() {
     if (loading) return loading;
     loading = Promise.allSettled([
-      fetch("/api/macro").then(r => (r.ok ? r.json() : null)),
+      window.KairosData ? window.KairosData.loadMacro() : fetch("/api/macro").then(r => (r.ok ? r.json() : null)),
       fetch("/api/sesion").then(r => (r.ok ? r.json() : null)),
     ]).then(([m, s]) => {
       macro = m.status === "fulfilled" ? m.value : null;

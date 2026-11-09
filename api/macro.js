@@ -158,7 +158,7 @@ module.exports = async (req, res) => {
       assets[ui].align = alignment(assets[ui].al, assets[ui].conv);
     }
 
-    res.setHeader("Cache-Control", "public, s-maxage=21600, stale-while-revalidate=86400");
+    res.setHeader("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=21600");
     return res.status(200).json({
       generatedAt: new Date().toISOString(),
       asOf: f.asOf,
