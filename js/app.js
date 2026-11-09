@@ -1,7 +1,8 @@
 /* Sala de Mando: navegación, relojes, precios en vivo (TradingView) y módulos de orderflow.
    El sesgo y su confianza salen de la macro real (/api/macro: sesgo, tendencia 20d, momento 5d y régimen).
    El precio y los niveles clave son reales (/api/niveles). El plan de juego se calcula por reglas con el sesgo y esos niveles.
-   El orderflow (compra/venta, delta, buckets) y el perfil de volumen siguen siendo DATOS DE EJEMPLO hasta conectar un proveedor. */
+   El orderflow (compra/venta, delta, buckets) y el perfil de volumen son una ESTIMACIÓN con velas de 1 minuto (/api/flujo);
+   donde no se puede estimar (forex) siguen siendo datos de ejemplo. No es orderflow real de un proveedor. */
 (() => {
   const K = window.KAIROS;
 
@@ -15,7 +16,7 @@
   const bySym = Object.fromEntries(M.map(m => [m.s, m]));
   let selected = ["MNQ", "MES", "GC"];
   let focus = "MNQ";
-  const buckets = Array.from({ length: 12 }, () => Math.round(Math.random() * 160 - 50));
+  let buckets = Array.from({ length: 12 }, () => Math.round(Math.random() * 160 - 50));
 
   const dec = t => t >= 1 ? 0 : String(t).split(".")[1].length;
   const fmt = (v, t) => v.toLocaleString("es-ES", { minimumFractionDigits: dec(t), maximumFractionDigits: dec(t) });
@@ -56,11 +57,11 @@
     if (selected.includes(s)) { if (selected.length > 1) selected = selected.filter(x => x !== s); }
     else { selected = [...selected.slice(-2), s]; }
     focus = selected.includes(focus) ? focus : selected[0];
-    renderChips(); renderQuotes(); renderChart(); renderDesk(); loadLevels();
+    renderChips(); renderQuotes(); renderChart(); renderDesk(); loadLevels(); loadFlow();
   });
   document.getElementById("quotes").addEventListener("click", e => {
     const q = e.target.closest(".quote"); if (!q || q.dataset.s === focus) return;
-    focus = q.dataset.s; markFocus(); renderChart(); renderDesk(); if (!LIVE[focus]) loadLevels();
+    focus = q.dataset.s; markFocus(); renderChart(); renderDesk(); if (!LIVE[focus]) loadLevels(); if (!FLOW[focus]) loadFlow();
   });
 
   // ---------- Tarjetas: precio real (TradingView) + flujo de ejemplo ----------
@@ -150,6 +151,25 @@
     }).catch(() => {});
     clearTimeout(liveTimer); liveTimer = setTimeout(loadLevels, 60000);
   }
+  // ---------- Orderflow estimado con velas de 1 minuto (/api/flujo) ----------
+  const FLOW = {};
+  let flowTimer = null;
+  function loadFlow() {
+    const want = [...new Set([...selected, focus])];
+    fetch("/api/flujo?s=" + encodeURIComponent(want.join(","))).then(r => (r.ok ? r.json() : null)).then(j => {
+      if (!j?.data) return;
+      Object.entries(j.data).forEach(([s, v]) => {
+        if (!v || v.error || !bySym[s]) return;
+        FLOW[s] = v; const m = bySym[s];
+        m.buy = v.buy; m.delta = v.deltaSession;
+      });
+      const tag = document.getElementById("flowTag");
+      if (tag) { const est = !!FLOW[focus]; tag.textContent = est ? "ORDERFLOW ESTIMADO" : "ORDERFLOW DE EJEMPLO"; tag.title = est ? "Estimación a partir de dónde cierra cada vela de 1 minuto y su volumen. No es orderflow real." : ""; }
+      renderFlows(); renderDesk(); publishFlow();
+    }).catch(() => {});
+    clearTimeout(flowTimer); flowTimer = setTimeout(loadFlow, 30000);
+  }
+
   // Niveles más cercanos por encima y por debajo del precio
   function nearest(m) {
     const lv = levels(m).filter(l => l.k !== "now");
@@ -186,6 +206,14 @@
   }
 
   function renderProfile(m) {
+    const F = FLOW[m.s];
+    if (F?.profile?.length) {
+      const max = Math.max(...F.profile.map(x => x.v), 1), poc = F.profile.findIndex(x => x.v === max);
+      const cur = F.profile.reduce((bi, x, i) => Math.abs(x.p - m.p) < Math.abs(F.profile[bi].p - m.p) ? i : bi, 0);
+      document.getElementById("profile").innerHTML = F.profile.map((x, i) =>
+        `<div class="prof-row ${i === poc ? "poc" : ""} ${i === cur ? "cur" : ""}"><span>${fmt(Math.round(x.p / m.t) * m.t, m.t)}</span><i style="width:${(x.v / max * 100).toFixed(0)}%"></i><span style="text-align:right">${x.v.toLocaleString("es-ES")}</span></div>`).join("");
+      return;
+    }
     const rows = 13, step = m.t * (m.t >= 1 ? 5 : 20);
     const base = Math.round(m.p / step) * step;
     const vols = Array.from({ length: rows }, (_, i) => Math.round(80 * Math.exp(-Math.pow((i - 6 + (m.buy - 50) / 12) / 3.2, 2)) + Math.random() * 14 + 4));
@@ -197,14 +225,16 @@
   }
 
   function renderBuckets() {
+    const F = FLOW[focus];
+    if (F) buckets = F.buckets.map(b => b.delta);
     const max = Math.max(...buckets.map(Math.abs), 1);
     document.getElementById("buckets").innerHTML = buckets.map(v => {
       const h = Math.abs(v) / max * 50;
-      return `<div class="bk" title="${sign(v)}${v}"><span style="height:${v > 0 ? h : 0}%;background:var(--up);margin-top:auto"></span><span style="height:${v < 0 ? h : 0}%;background:var(--down);margin-bottom:auto"></span></div>`;
+      return `<div class="bk" title="${sign(v)}${v}${F ? " · " + F.buckets[buckets.indexOf(v)]?.type : ""}"><span style="height:${v > 0 ? h : 0}%;background:var(--up);margin-top:auto"></span><span style="height:${v < 0 ? h : 0}%;background:var(--down);margin-bottom:auto"></span></div>`;
     }).join("");
     const now = new Date(); now.setMinutes(Math.floor(now.getMinutes() / 5) * 5, 0, 0);
     document.getElementById("bkLabels").innerHTML = buckets.map((_, i) => {
-      const t = new Date(now - (11 - i) * 300000);
+      const t = FLOW[focus] ? new Date(FLOW[focus].buckets[i].t) : new Date(now - (11 - i) * 300000);
       return `<span>${i % 3 === 2 ? t.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : ""}</span>`;
     }).join("");
     const last = buckets[11], el = document.getElementById("deltaNow");
@@ -218,7 +248,7 @@
     const dir = st === "up" ? "alcista" : st === "down" ? "bajista" : "neutral";
     document.getElementById("brief").innerHTML = `
       <p><b>${m.s}</b> tiene un sesgo <b class="${st}">${dir}</b> con una confianza de ${conf}/100. El ${m.buy.toFixed(0)}% del volumen reciente es comprador.</p>
-      <p>Oferta más cercana en <span class="mono">${fmt(sup.v, m.t)}</span>; demanda en <span class="mono">${fmt(dem.v, m.t)}</span>. ${st === "up" ? "Un retroceso a demanda con el delta aguantando positivo sería la entrada de mayor calidad." : st === "down" ? "Los rebotes hacia la oferta con el delta negativo ofrecen ventas con buen riesgo." : "Mejor esperar a que el precio salga del rango con volumen antes de tomar posición."}</p>
+      <p>Oferta más cercana en <span class="mono">${fmt(sup.v, m.t)}</span>; demanda en <span class="mono">${fmt(dem.v, m.t)}</span>. ${st === "up" ? (m.buy >= 50 ? "El flujo acompaña: un retroceso a demanda con el delta aguantando positivo sería la entrada de mayor calidad." : "Ojo: el flujo es vendedor ahora mismo, contra el sesgo. Espera a que el delta se gire a positivo antes de comprar.") : st === "down" ? (m.buy <= 50 ? "El flujo acompaña: los rebotes hacia la oferta con el delta negativo ofrecen ventas con buen riesgo." : "Ojo: el flujo es comprador ahora mismo, contra el sesgo. Espera a que el delta se gire a negativo en la oferta antes de vender.") : "Mejor esperar a que el precio salga del rango con volumen antes de tomar posición."}${FLOW[m.s] ? " <i style=\"color:var(--muted)\">(flujo estimado con velas de 1 min)</i>" : ""}</p>
       <p style="color:var(--muted)">Revisa el calendario antes de operar: los datos de alto impacto pueden invalidar cualquier nivel.</p>`;
     // Plan de juego por reglas: el sesgo manda; entrada en el nivel a favor más cercano, invalidación en el siguiente y objetivo en el opuesto
     const adv = document.getElementById("advice"), txt = document.getElementById("adviceTxt");
@@ -268,11 +298,12 @@
         m.p = Math.max(m.t, m.p * (1 + drift + (Math.random() - .5) * 0.0012));
         m.p = Math.round(m.p / m.t) * m.t;
       }
+      if (FLOW[m.s]) return; // estimación real: no se simula
       m.buy = Math.min(78, Math.max(22, m.buy + (Math.random() - .5) * 3));
       const rb = realBias(m.s); if (rb?.st === "up") m.buy = Math.max(52, m.buy); else if (rb?.st === "down") m.buy = Math.min(48, m.buy);
       m.delta += Math.round((m.buy - 50) * 2 + (Math.random() - .5) * 30);
     });
-    buckets[11] += Math.round((bySym[focus].buy - 50) / 3 + (Math.random() - .5) * 12);
+    if (!FLOW[focus]) buckets[11] += Math.round((bySym[focus].buy - 50) / 3 + (Math.random() - .5) * 12);
   }
 
   // ---------- Navegación entre secciones (#cal, #heat, #macro…) ----------
@@ -298,7 +329,7 @@
   window.KairosShow = show;
   // Macro real desde el almacén compartido (la misma respuesta que usa la vista Macro); se repite en cada refresco
   let seeded = false;
-  const publishFlow = () => window.KairosData?.set("flow", Object.fromEntries(M.map(m => [m.s, { buy: m.buy, delta: m.delta, p: m.p, live: !!LIVE[m.s] }])));
+  const publishFlow = () => window.KairosData?.set("flow", Object.fromEntries(M.map(m => [m.s, { buy: m.buy, delta: m.delta, p: m.p, live: !!LIVE[m.s], est: !!FLOW[m.s] }])));
   window.KairosData?.on("macro", j => {
     if (!j?.assets) return;
     REAL = j.assets;
@@ -308,10 +339,10 @@
     renderFlows(); renderDesk(); publishFlow();
   });
 
-  renderChips(); renderQuotes(); renderChart(); renderDesk(); tick(); loadLevels();
+  renderChips(); renderQuotes(); renderChart(); renderDesk(); tick(); loadLevels(); loadFlow();
   window.addEventListener("load", () => show(location.hash.slice(1) || "desk"));
   window.addEventListener("hashchange", () => show(location.hash.slice(1) || "desk"));
   setInterval(() => { step(); publishFlow(); if (!document.getElementById("desk").hidden) renderDesk(); }, 3000);
   setInterval(tick, 15000);
-  setInterval(() => { buckets.shift(); buckets.push(0); }, 300000);
+  setInterval(() => { if (!FLOW[focus]) { buckets.shift(); buckets.push(0); } }, 300000);
 })();

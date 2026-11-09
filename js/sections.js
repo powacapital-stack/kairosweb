@@ -206,7 +206,7 @@
   function flowCard(s, a) {
     const [buy, delta] = flowOf(s, a), sig = buy >= 55 ? "COMPRADORA" : buy <= 45 ? "VENDEDORA" : "NEUTRAL", sigC = buy >= 55 ? "up" : buy <= 45 ? "down" : "flat";
     const fconv = Math.abs(buy - 50) >= 12 ? "ALTA" : Math.abs(buy - 50) >= 6 ? "MEDIA" : "BAJA", sell = Math.round((100 - buy) * 10) / 10;
-    return `<div class="card-head"><span class="label">Señal de orderflow macro</span><span class="demo-tag">EJEMPLO · IGUAL QUE SALA DE MANDO</span></div>
+    return `<div class="card-head"><span class="label">Señal de orderflow macro</span><span class="demo-tag">${flowOf(s, a)[2] ? "ESTIMACIÓN · VELAS 1 MIN" : "EJEMPLO"} · IGUAL QUE SALA DE MANDO</span></div>
         <div style="display:grid;gap:8px">
           <div class="bar-row"><span>Presión compradora</span><div class="track"><i style="left:0;width:${buy}%;background:var(--up)"></i></div><span class="mono up" style="text-align:right">${buy}%</span></div>
           <div class="bar-row"><span>Presión vendedora</span><div class="track"><i style="left:0;width:${sell}%;background:var(--down)"></i></div><span class="mono down" style="text-align:right">${sell}%</span></div>
@@ -323,7 +323,7 @@
   const FLOW_SYM = { ES: "ES", MYM: "MYM", NQ: "NQ", MNQ: "MNQ", USTEC: "USTEC", GC: "GC", CL: "CL", "EUR/USD": "EUR/USD", "GBP/USD": "GBP/USD", "USD/JPY": "USD/JPY" };
   function flowOf(s, a) {
     const f = window.KairosData?.get("flow")?.[FLOW_SYM[s] || s];
-    return f ? [Math.round(f.buy * 10) / 10, f.delta] : a.flow;
+    return f ? [Math.round(f.buy * 10) / 10, f.delta, f.est] : a.flow;
   }
   window.KairosData?.on("flow", () => {
     if ($("view-macro").hidden || macroTab === "global") return;
