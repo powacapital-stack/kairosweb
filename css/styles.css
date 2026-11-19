@@ -632,3 +632,14 @@ body.viewer-open { overflow: hidden; }
 .mx-subs b { font: 600 13px var(--f-data); }
 .mx-subs i { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
 .mx-subs i b { display: block; height: 100%; background: var(--grad); }
+
+/* Academia: protección del contenido del curso */
+#view-academy { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+#view-academy input, #view-academy textarea { -webkit-user-select: text; user-select: text; }
+.shot-wrap { position: relative; display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.shot-wrap img, .shot-box img { pointer-events: none; -webkit-user-drag: none; user-select: none; }
+.shot-guard { position: absolute; inset: 0; background: transparent; }
+.shot-box { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: rgba(4, 6, 14, .92); cursor: zoom-out; -webkit-user-select: none; user-select: none; }
+.shot-box img { max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 20px 60px rgba(0, 0, 0, .6); }
+.shot-box .shot-guard { position: fixed; }
+@media print { #view-academy, .shot-box { display: none !important; } body::after { content: "La impresión del curso de Kairos no está permitida."; display: block; padding: 40px; font: 16px sans-serif; } }

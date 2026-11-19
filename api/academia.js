@@ -16,5 +16,9 @@ module.exports = (req, res) => {
   const s = S.getSession(req);
   if (!s) return S.sendJson(res, 401, { error: "login_required" });
   if (!s.c) return S.sendJson(res, 403, { error: "course_required" });
-  S.sendJson(res, 200, { modules: MODULES });
+  // Enlaces de las capturas firmados para este alumno; caducan a los 30 min (la Academia los renueva sola)
+  const exp = Date.now() + 30 * 60 * 1000;
+  const signShot = sh => ({ ...sh, src: "/api/academia-img?t=" + S.sign({ k: "img", f: String(sh.src).split("f=")[1], uid: s.uid, exp }) });
+  res.setHeader("Cache-Control", "private, no-store");
+  S.sendJson(res, 200, { expiresAt: exp, modules: MODULES.map(m => ({ ...m, lessons: m.lessons.map(l => (l.shots?.length ? { ...l, shots: l.shots.map(signShot) } : l)) })) });
 };

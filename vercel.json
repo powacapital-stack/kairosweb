@@ -4,7 +4,7 @@
       "maxDuration": 120
     },
     "api/academia-img.js": {
-      "includeFiles": "api/_lib/academia-img/**"
+      "includeFiles": "api/_lib/{academia-img,fonts}/**"
     }
   }
 }

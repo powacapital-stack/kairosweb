@@ -424,13 +424,13 @@
   const MODS = [["La Sala de Mando","Cómo leer cada módulo del panel y en qué orden mirarlo.",[["Qué es la Sala de Mando"],["El sesgo y la confianza"],["Precios y flujo"],["Cómo leer el briefing"],["El calendario económico"],["Sesiones y apertura de NY"]]],["Oferta y demanda","Zonas donde el precio reaccionó con fuerza y por qué tienden a repetirse.",[["Qué es una zona"],["Cómo identificar una zona válida"],["Zonas en MNQ, MES y oro"],["Fuerza y confluencias"],["Entradas desde zonas"],["Zonas y sesgo"]]],["Orderflow","Ver quién está agrediendo el mercado en cada momento.",[["Qué es el orderflow"],["El delta"],["Barras de compra y venta"],["Volumen por precio y absorción"],["Divergencias de delta"],["Orderflow en el briefing"]]],["Ejecución","Del análisis a la orden: rutina, entradas y gestión del riesgo.",[["Preparación antes del mercado"],["La apertura de Nueva York"],["El modelo de entrada"],["Gestión del riesgo"],["Gestión de la operación"],["La rutina diaria completa"]]],["El Método Kairos MNQ","Apertura de Nueva York con orderflow: desequilibrio, liquidez, imbalances y delta.",[["La estrategia"],["Visión general: los 8 filtros"],["Condiciones de entrada"],["VAL, VAH y el nivel máximo"],["Ejecución y gestión"],["La lista de verificación"],["Palabras finales"]]],["Operaciones reales","Casos reales del autor con capturas de su plataforma: qué vio, cuándo entró y cuándo no.",[["14/04 · MNQ · Liquidez en los máximos de Londres"],["25/04 · MNQ · De la liquidación a la venta en el máximo"],["28/04 · MNQ · El delta extremo que no continúa"],["06/05 · MNQ · Apertura de Londres (09:00)"],["07/05 · MGC · Micro oro: ruptura del nivel máximo"],["09/05 · MNQ · Nivel fresco lleno de imbalances"],["MNQ · Liquidación y giro"],["MNQ · Cuándo NO entrar y cómo esperar la buena"]]]];
   const done = new Set(store.get("kairos-academy", []));
   let open = null;
-  let lessons = null; // texto completo de las lecciones, solo si el usuario ha comprado el curso
+  let lessons = null, lessonsExp = 0; // texto completo de las lecciones, solo si el usuario ha comprado el curso
   const access = () => window.KairosUser || {};
   if (window.KAIROS.checkoutCourse) $("aBuy").href = window.KAIROS.checkoutCourse;
   async function loadLessons() {
     try {
       const r = await fetch("/api/academia", { cache: "no-store" });
-      if (r.ok) { lessons = (await r.json()).modules; renderAcademy(); }
+      if (r.ok) { const j = await r.json(); lessons = j.modules; lessonsExp = j.expiresAt || 0; renderAcademy(); }
     } catch {}
   }
   const expanded = new Set([0]); // módulos desplegados
@@ -443,7 +443,7 @@
   }
   function renderAcademy() {
     const exclusive = !!access().course && !!lessons;
-    if (access().course && !lessons) loadLessons();
+    if (access().course && (!lessons || (lessonsExp && Date.now() > lessonsExp - 120000))) { if (lessons) lessonsExp = 0; loadLessons(); } // renueva los enlaces firmados antes de que caduquen
     $("aLock").hidden = !!access().course;
     $("aModules").classList.toggle("locked", !access().course);
     $("aModules").setAttribute("aria-hidden", String(!access().course));
@@ -473,7 +473,7 @@
       ${l.fig ? `<figure class="fig">${l.fig.svg}<figcaption>${esc(l.fig.caption)}</figcaption></figure>` : ""}
       ${l.video ? `<div class="video"><iframe src="${esc(l.video)}" title="${esc(l.title)}" allow="encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy"></iframe></div>` : ""}
       ${l.body.split("\n\n").map(p => `<p class="lead">${esc(p).replace(/\n/g, "<br>")}</p>`).join("")}
-      ${(l.shots || []).map(sh => `<figure class="fig shot"><a href="${sh.src}" target="_blank" rel="noopener" title="Ver a tamaño completo"><img src="${sh.src}" alt="${esc(sh.caption)}" loading="lazy"></a><figcaption>${esc(sh.caption)}</figcaption></figure>`).join("")}
+      ${(l.shots || []).map(sh => `<figure class="fig shot"><button class="shot-wrap" data-zoom="${sh.src}" title="Ampliar"><img src="${sh.src}" alt="${esc(sh.caption)}" loading="lazy" draggable="false"><span class="shot-guard" aria-hidden="true"></span></button><figcaption>${esc(sh.caption)}</figcaption></figure>`).join("")}
       ${l.steps?.length ? `<div class="steps-box"><span class="label">${esc(l.stepsLabel || "Cómo aplicarlo")}</span><ol>${l.steps.map(s => `<li>${esc(s)}</li>`).join("")}</ol></div>` : ""}
       ${l.example ? `<div class="example"><span class="label">${esc(l.exampleLabel || "Ejemplo práctico")}</span><p>${esc(l.example)}</p></div>` : ""}
       <div class="tip"><span class="label" style="color:var(--brass)">Clave</span><br>${esc(l.key)}</div>
@@ -500,6 +500,27 @@
     renderAcademy();
   });
   document.addEventListener("keydown", e => { if (e.key === "Escape" && open) { open = null; renderAcademy(); } });
+
+  /* ---------- Protección del contenido del curso ----------
+     Dificulta copiar o guardar: sin clic derecho, arrastrar, seleccionar, copiar, guardar ni imprimir dentro de la Academia.
+     No evita capturas de pantalla: para eso cada imagen lleva la marca de agua del alumno (api/_lib/watermark.js). */
+  const inCourse = el => !!(el && el.closest && el.closest("#view-academy, .shot-box"));
+  ["contextmenu", "dragstart", "copy", "cut", "selectstart"].forEach(ev => document.addEventListener(ev, e => { if (inCourse(e.target) && !e.target.closest("input, textarea")) e.preventDefault(); }));
+  document.addEventListener("keydown", e => {
+    if (!(e.ctrlKey || e.metaKey) || $("view-academy").hidden) return;
+    if (["c", "x", "s", "p", "u", "a"].includes(e.key.toLowerCase())) e.preventDefault();
+  });
+  // Ampliar una captura dentro de la página (sin abrirla en otra pestaña)
+  document.addEventListener("click", e => {
+    const z = e.target.closest("[data-zoom]");
+    if (z) {
+      const box = document.createElement("div"); box.className = "shot-box"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Captura ampliada · pulsa para cerrar");
+      box.innerHTML = `<img src="${z.dataset.zoom}" alt="" draggable="false"><span class="shot-guard" aria-hidden="true"></span>`;
+      document.body.appendChild(box); return;
+    }
+    const b = e.target.closest(".shot-box"); if (b) b.remove();
+  });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelector(".shot-box")?.remove(); });
 
   /* ---------- Registro de vistas y temporizador ---------- */
   window.KairosViews = { cal: renderCal, heat: renderHeat, macro: () => { showMacro(); loadLiveMacro(); }, journal: renderJournal, academy: renderAcademy };
